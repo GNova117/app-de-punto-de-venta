@@ -21,22 +21,55 @@ gorras y accesorios. Funciona en el navegador y guarda todos los datos localment
   ejemplo las categorías **Ropa**, **Cosméticos**, **Gorras**, **Accesorios** y
   **Calzado**, y puedes crear, editar o eliminar las que necesites.
 
-## Cómo usar
+## Instalación
 
-1. Instalar dependencias:
+Hay dos formas de instalarla, según para qué la quieras.
+
+### Opción A: publicarla para usarla todos los días en el negocio (recomendada)
+
+Es una app 100% estática (no necesita base de datos ni backend), así que puedes
+publicarla gratis en un servicio como [Vercel](https://vercel.com) o
+[Netlify](https://netlify.com):
+
+1. Entra a vercel.com o netlify.com y crea una cuenta gratuita (puedes usar tu cuenta
+   de GitHub para entrar en un clic).
+2. Elige **"Import Project" / "Add new site" → "Import from GitHub"** y selecciona este
+   repositorio (`app-de-punto-de-venta`).
+3. Framework: detectan Vite automáticamente. Si te lo pide, confirma:
+   - Build command: `npm run build`
+   - Output directory: `dist`
+4. Dale a **Deploy**. En un par de minutos te dan un enlace (por ejemplo
+   `https://tu-tienda.vercel.app`).
+5. Abre ese enlace desde la computadora, tablet o celular que usarás en la caja, con
+   Chrome o Edge. En la barra de direcciones (o en el menú ⋮) verás la opción
+   **"Instalar aplicación"** / **"Agregar a pantalla de inicio"**. Al instalarla queda
+   con su propio ícono, se abre en su propia ventana (sin barra del navegador) y
+   sigue funcionando aunque no haya internet, porque los datos se guardan en el
+   dispositivo.
+
+Cada vez que subas cambios a la rama principal del repositorio, Vercel/Netlify
+actualizan el sitio publicado automáticamente.
+
+### Opción B: correrla en tu computadora para probarla o modificarla
+
+Requiere tener [Node.js](https://nodejs.org) instalado (versión 18 o superior).
+
+1. Descarga el proyecto (clona el repositorio) y entra a la carpeta.
+2. Instalar dependencias:
    ```bash
    npm install
    ```
-2. Iniciar en modo desarrollo:
+3. Iniciar en modo desarrollo (abre automáticamente en tu navegador):
    ```bash
    npm run dev
    ```
-3. Compilar para producción (genera la carpeta `dist/` lista para publicar en cualquier
-   hosting estático, o para instalarse como PWA):
+4. Para generar la versión final y probarla como quedaría publicada:
    ```bash
    npm run build
    npm run preview
    ```
+   Con `npm run preview` corriendo, abre la URL que te muestra en Chrome/Edge y ahí
+   también aparece la opción de **"Instalar aplicación"**.
 
 ## Flujo recomendado
 
@@ -58,3 +91,5 @@ gorras y accesorios. Funciona en el navegador y guarda todos los datos localment
   información no se transfiere automáticamente.
 - Escaneo de código de barras con la cámara vía `html5-qrcode`; los lectores físicos de
   código de barras funcionan de forma nativa porque se comportan como un teclado.
+- Instalable como PWA (`vite-plugin-pwa`): una vez publicada, el navegador ofrece
+  "Instalar aplicación" y queda disponible sin conexión gracias al service worker.
