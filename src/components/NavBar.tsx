@@ -7,6 +7,7 @@ const links = [
   { to: '/movimientos', label: 'Entradas/Salidas', icon: '🔁' },
   { to: '/ventas', label: 'Historial de ventas', icon: '🧾' },
   { to: '/corte', label: 'Corte del día', icon: '💰' },
+  { to: '/respaldo', label: 'Respaldo', icon: '💾' },
 ]
 
 export default function NavBar() {

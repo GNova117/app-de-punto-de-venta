@@ -20,6 +20,23 @@ gorras y accesorios. Funciona en el navegador y guarda todos los datos localment
 - **Categorías de productos**: clasifica cada producto al darlo de alta. Incluye de
   ejemplo las categorías **Ropa**, **Cosméticos**, **Gorras**, **Accesorios** y
   **Calzado**, y puedes crear, editar o eliminar las que necesites.
+- **Respaldo de datos**: descarga un archivo con todos tus productos, ventas y
+  movimientos, y restáuralo en el mismo u otro dispositivo. La app te avisa cuando hay
+  ventas sin respaldar.
+
+## Respaldo de tus datos (importante)
+
+Los datos viven solo en el navegador del dispositivo donde usas la app. Si el dispositivo
+se descompone, se pierde o se borran los datos del navegador, **la información se pierde**
+a menos que tengas un respaldo.
+
+- Ve a **💾 Respaldo → Descargar respaldo** (o usa el botón en **Corte del día** al cerrar
+  caja). Se descarga un archivo `respaldo-punto-de-venta-AAAA-MM-DD-HHMM.json`.
+- Guárdalo **fuera del dispositivo**: súbelo a Google Drive, mándatelo por correo o por
+  WhatsApp.
+- Para recuperar tus datos (o pasarlos a otro dispositivo): **💾 Respaldo → Restaurar
+  respaldo**, elige el archivo y confirma. Esto reemplaza los datos actuales de ese
+  dispositivo por los del respaldo.
 
 ## Instalación
 

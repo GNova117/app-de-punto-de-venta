@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
+import { downloadBackup } from '../backup'
 import { getDailyCutoff } from '../repo'
 import { formatDate, formatDateTime, formatMoney, todayInputValue } from '../utils/format'
 
@@ -16,12 +17,20 @@ export default function DailyCutoffPage() {
             Resumen de pagos en efectivo y transferencia para cerrar caja.
           </p>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50"
-        >
-          🖨️ Imprimir
-        </button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <button
+            onClick={() => downloadBackup()}
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50"
+          >
+            💾 Descargar respaldo
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50"
+          >
+            🖨️ Imprimir
+          </button>
+        </div>
       </div>
 
       <div className="mb-6 print:hidden">
