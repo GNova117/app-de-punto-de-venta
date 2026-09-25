@@ -66,13 +66,14 @@ export default function PosPage() {
     setScanError('')
     const trimmed = code.trim()
     if (!trimmed) return
+    // Limpiar antes de buscar: un lector rápido ya puede estar tecleando el siguiente código.
+    setBarcode('')
     const product = await getProductByBarcode(trimmed)
     if (!product) {
       setScanError(`No se encontró ningún producto con el código "${trimmed}".`)
       return
     }
     addToCart(product)
-    setBarcode('')
   }
 
   function updateQuantity(productId: number, quantity: number) {
