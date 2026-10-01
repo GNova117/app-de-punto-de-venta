@@ -26,15 +26,15 @@ export default function BackupReminder() {
   if (pathname === '/admin/respaldo' || !needsBackup) return null
 
   return (
-    <div className="border-b border-amber-200 bg-amber-50">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm text-amber-800">
+    <div className="border-b border-sand bg-blush/60">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm text-brand-900">
         <span>
           💾 Tienes ventas o movimientos sin respaldar
           {lastBackupAt ? ` (último respaldo: ${formatDateTime(lastBackupAt)})` : ''}.
         </span>
         <button
           onClick={() => downloadBackup()}
-          className="rounded-lg bg-amber-600 px-3 py-1 text-xs font-medium text-white hover:bg-amber-700"
+          className="rounded-lg bg-brand-600 px-3 py-1 text-xs font-medium text-white hover:bg-brand-700"
         >
           Descargar respaldo
         </button>

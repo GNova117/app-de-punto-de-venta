@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import logo from './assets/logo-glam-carpe.png'
 import { requestPersistentStorage } from './backup'
 import AdminProvider from './components/AdminProvider'
 import BackupReminder from './components/BackupReminder'
@@ -25,15 +26,15 @@ function App() {
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-gray-400">
-        Cargando...
+      <div className="flex min-h-screen items-center justify-center bg-cream">
+        <img src={logo} alt="Glam Carpe" className="h-24 animate-pulse" />
       </div>
     )
   }
 
   return (
     <AdminProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-cream">
         <NavBar />
         <BackupReminder />
         <Routes>

@@ -1,7 +1,7 @@
-# Punto de Venta
+# Glam Carpe · Punto de Venta
 
-Aplicación web de punto de venta (POS) para negocios pequeños: tienda de ropa, cosméticos,
-gorras y accesorios. Funciona en el navegador y guarda todos los datos localmente
+Aplicación web de punto de venta (POS) de **Glam Carpe**: ropa, cosméticos, gorras y
+accesorios. Funciona en el navegador y guarda todos los datos localmente
 (IndexedDB), por lo que no requiere servidor ni conexión a internet una vez cargada.
 
 ## Funcionalidades
@@ -139,3 +139,6 @@ Requiere tener [Node.js](https://nodejs.org) instalado (versión 18 o superior).
   código de barras funcionan de forma nativa porque se comportan como un teclado.
 - Instalable como PWA (`vite-plugin-pwa`): una vez publicada, el navegador ofrece
   "Instalar aplicación" y queda disponible sin conexión gracias al service worker.
+- Marca: el logo está en `src/assets/logo-glam-carpe.png` y los íconos de la app en
+  `public/` (`pwa-*.png`, `favicon.png`). La paleta (azul `brand`, `cream`, `blush`,
+  `sand`) se define en `src/index.css` dentro de `@theme`.

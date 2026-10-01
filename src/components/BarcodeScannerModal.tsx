@@ -46,18 +46,18 @@ export default function BarcodeScannerModal({ onDetected, onClose }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800">Escanear código de barras</h3>
+          <h3 className="text-lg font-semibold text-stone-800">Escanear código de barras</h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1 text-gray-500 hover:bg-gray-100"
+            className="rounded-full p-1 text-stone-500 hover:bg-stone-100"
             aria-label="Cerrar"
           >
             ✕
           </button>
         </div>
         <div id={ELEMENT_ID} className="overflow-hidden rounded-lg bg-black" />
-        <p className="mt-3 text-center text-sm text-gray-500">
+        <p className="mt-3 text-center text-sm text-stone-500">
           Apunta la cámara al código de barras del producto.
         </p>
       </div>

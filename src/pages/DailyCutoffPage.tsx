@@ -12,21 +12,21 @@ export default function DailyCutoffPage() {
     <div className="mx-auto max-w-3xl px-4 py-6 print:max-w-full">
       <div className="mb-6 flex items-center justify-between print:hidden">
         <div>
-          <h1 className="mb-1 text-2xl font-bold text-gray-800">Corte del día</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="mb-1 text-2xl font-bold text-stone-800">Corte del día</h1>
+          <p className="text-sm text-stone-500">
             Resumen de pagos en efectivo y transferencia para cerrar caja.
           </p>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
           <button
             onClick={() => downloadBackup()}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50"
+            className="rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm hover:bg-stone-50"
           >
             💾 Descargar respaldo
           </button>
           <button
             onClick={() => window.print()}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50"
+            className="rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm hover:bg-stone-50"
           >
             🖨️ Imprimir
           </button>
@@ -39,42 +39,42 @@ export default function DailyCutoffPage() {
           value={date}
           max={todayInputValue()}
           onChange={(e) => setDate(e.target.value)}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          className="rounded-lg border border-stone-300 px-3 py-2 text-sm"
         />
       </div>
 
       {cutoff && (
         <>
-          <p className="mb-4 text-center text-lg font-medium text-gray-700 capitalize">
+          <p className="mb-4 text-center text-lg font-medium text-stone-700 capitalize">
             {formatDate(cutoff.date)}
           </p>
 
           <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
-              <p className="text-xs text-gray-500">💵 Efectivo</p>
+            <div className="rounded-xl border border-stone-200 bg-white p-4 text-center">
+              <p className="text-xs text-stone-500">💵 Efectivo</p>
               <p className="mt-1 text-2xl font-bold text-green-700">
                 {formatMoney(cutoff.totalCash)}
               </p>
             </div>
-            <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
-              <p className="text-xs text-gray-500">🏦 Transferencia</p>
-              <p className="mt-1 text-2xl font-bold text-blue-700">
+            <div className="rounded-xl border border-stone-200 bg-white p-4 text-center">
+              <p className="text-xs text-stone-500">🏦 Transferencia</p>
+              <p className="mt-1 text-2xl font-bold text-brand-700">
                 {formatMoney(cutoff.totalTransfer)}
               </p>
             </div>
-            <div className="rounded-xl border border-gray-200 bg-gray-900 p-4 text-center">
-              <p className="text-xs text-gray-300">Total del día</p>
+            <div className="rounded-xl border border-brand-700 bg-brand-600 p-4 text-center">
+              <p className="text-xs text-brand-100">Total del día</p>
               <p className="mt-1 text-2xl font-bold text-white">{formatMoney(cutoff.total)}</p>
             </div>
           </div>
 
-          <p className="mb-3 text-sm text-gray-500">
+          <p className="mb-3 text-sm text-stone-500">
             {cutoff.count} transacción(es) registrada(s)
           </p>
 
-          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+          <div className="overflow-hidden rounded-xl border border-stone-200 bg-white">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-xs text-gray-500">
+              <thead className="bg-stone-50 text-xs text-stone-500">
                 <tr>
                   <th className="px-4 py-2">Hora</th>
                   <th className="px-4 py-2">Venta</th>
@@ -84,18 +84,18 @@ export default function DailyCutoffPage() {
               </thead>
               <tbody>
                 {cutoff.sales.map((s) => (
-                  <tr key={s.id} className="border-t border-gray-100">
-                    <td className="px-4 py-2 text-gray-500">{formatDateTime(s.date)}</td>
-                    <td className="px-4 py-2 font-medium text-gray-800">#{s.id}</td>
-                    <td className="px-4 py-2 capitalize text-gray-600">{s.paymentMethod}</td>
-                    <td className="px-4 py-2 text-right font-medium text-gray-800">
+                  <tr key={s.id} className="border-t border-stone-100">
+                    <td className="px-4 py-2 text-stone-500">{formatDateTime(s.date)}</td>
+                    <td className="px-4 py-2 font-medium text-stone-800">#{s.id}</td>
+                    <td className="px-4 py-2 capitalize text-stone-600">{s.paymentMethod}</td>
+                    <td className="px-4 py-2 text-right font-medium text-stone-800">
                       {formatMoney(s.total)}
                     </td>
                   </tr>
                 ))}
                 {cutoff.sales.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-4 py-6 text-center text-gray-400">
+                    <td colSpan={4} className="px-4 py-6 text-center text-stone-400">
                       No hay ventas registradas en esta fecha.
                     </td>
                   </tr>

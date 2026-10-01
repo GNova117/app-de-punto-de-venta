@@ -10,14 +10,14 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.png'],
       manifest: {
-        name: 'Punto de Venta',
-        short_name: 'Mi Tienda',
-        description: 'App de punto de venta: ventas, inventario, categorías y corte de caja.',
+        name: 'Glam Carpe · Punto de Venta',
+        short_name: 'Glam Carpe',
+        description: 'Glam Carpe: ventas, inventario, categorías y corte de caja.',
         lang: 'es',
-        theme_color: '#2563eb',
-        background_color: '#f3f4f6',
+        theme_color: '#03445c',
+        background_color: '#f7ede3',
         display: 'standalone',
         start_url: '/',
         icons: [

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { MIN_PIN_LENGTH, setAdminPin, verifyAdminPin } from '../auth'
 
 const inputClass =
-  'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none'
+  'w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none'
 
 export default function AdminPasswordPage() {
   const [current, setCurrent] = useState('')
@@ -37,17 +37,17 @@ export default function AdminPasswordPage() {
 
   return (
     <div className="mx-auto max-w-sm px-4 py-6">
-      <h1 className="mb-1 text-2xl font-bold text-gray-800">Cambiar contraseña</h1>
-      <p className="mb-6 text-sm text-gray-500">
+      <h1 className="mb-1 text-2xl font-bold text-stone-800">Cambiar contraseña</h1>
+      <p className="mb-6 text-sm text-stone-500">
         Cámbiala si alguien más la conoce. La sesión de administración se cierra sola tras 10
         minutos sin usarla.
       </p>
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4"
+        className="flex flex-col gap-3 rounded-xl border border-stone-200 bg-white p-4"
       >
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">Contraseña actual</label>
+          <label className="mb-1 block text-xs font-medium text-stone-600">Contraseña actual</label>
           <input
             type="password"
             autoComplete="current-password"
@@ -57,7 +57,7 @@ export default function AdminPasswordPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">Nueva contraseña</label>
+          <label className="mb-1 block text-xs font-medium text-stone-600">Nueva contraseña</label>
           <input
             type="password"
             autoComplete="new-password"
@@ -67,7 +67,7 @@ export default function AdminPasswordPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-stone-600">
             Repite la nueva contraseña
           </label>
           <input
@@ -85,7 +85,7 @@ export default function AdminPasswordPage() {
         )}
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700"
         >
           Guardar contraseña
         </button>

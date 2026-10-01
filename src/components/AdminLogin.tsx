@@ -3,7 +3,7 @@ import { useAdmin } from '../admin-session'
 import { hasAdminPin, MIN_PIN_LENGTH, setAdminPin, verifyAdminPin } from '../auth'
 
 const inputClass =
-  'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none'
+  'w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none'
 
 export default function AdminLogin() {
   const { unlock } = useAdmin()
@@ -50,23 +50,23 @@ export default function AdminLogin() {
 
   return (
     <div className="mx-auto max-w-sm px-4 py-10">
-      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6">
+      <form onSubmit={handleSubmit} className="rounded-xl border border-stone-200 bg-white p-6">
         <p className="mb-2 text-center text-3xl">🔒</p>
-        <h1 className="mb-1 text-center text-xl font-bold text-gray-800">Administración</h1>
+        <h1 className="mb-1 text-center text-xl font-bold text-stone-800">Administración</h1>
 
         {isSetup ? (
-          <p className="mb-5 text-center text-sm text-gray-500">
+          <p className="mb-5 text-center text-sm text-stone-500">
             Crea la contraseña de administrador. Solo quien la conozca podrá dar de alta
             productos, categorías y entradas de mercancía. En la caja se podrá vender, ver el
             historial y hacer el corte sin contraseña.
           </p>
         ) : (
-          <p className="mb-5 text-center text-sm text-gray-500">
+          <p className="mb-5 text-center text-sm text-stone-500">
             Ingresa la contraseña para administrar productos, categorías e inventario.
           </p>
         )}
 
-        <label className="mb-1 block text-xs font-medium text-gray-600">
+        <label className="mb-1 block text-xs font-medium text-stone-600">
           {isSetup ? 'Nueva contraseña' : 'Contraseña'}
         </label>
         <input
@@ -80,7 +80,7 @@ export default function AdminLogin() {
 
         {isSetup && (
           <>
-            <label className="mb-1 block text-xs font-medium text-gray-600">
+            <label className="mb-1 block text-xs font-medium text-stone-600">
               Repite la contraseña
             </label>
             <input
@@ -90,7 +90,7 @@ export default function AdminLogin() {
               onChange={(e) => setConfirmPin(e.target.value)}
               className={`${inputClass} mb-3`}
             />
-            <p className="mb-3 text-xs text-gray-400">
+            <p className="mb-3 text-xs text-stone-400">
               Mínimo {MIN_PIN_LENGTH} caracteres. Puede ser un PIN de números.
             </p>
           </>
@@ -101,13 +101,13 @@ export default function AdminLogin() {
         <button
           type="submit"
           disabled={busy}
-          className="w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="w-full rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
         >
           {isSetup ? 'Crear contraseña y entrar' : 'Entrar'}
         </button>
 
         {!isSetup && (
-          <details className="mt-4 text-xs text-gray-500">
+          <details className="mt-4 text-xs text-stone-500">
             <summary className="cursor-pointer">¿Olvidaste la contraseña?</summary>
             <ol className="mt-2 list-decimal space-y-1 pl-4">
               <li>En Corte del día, descarga un respaldo.</li>

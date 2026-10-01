@@ -1,5 +1,24 @@
 @import 'tailwindcss';
 
+/* Paleta tomada del logo de Glam Carpe */
+@theme {
+  --color-brand-50: #f0f7f9;
+  --color-brand-100: #deedf2;
+  --color-brand-200: #bedae4;
+  --color-brand-300: #89bacd;
+  --color-brand-400: #4095b5;
+  --color-brand-500: #136786;
+  --color-brand-600: #03445c;
+  --color-brand-700: #023548;
+  --color-brand-800: #022836;
+  --color-brand-900: #011d28;
+  --color-brand-950: #011219;
+
+  --color-cream: #f7ede3;
+  --color-blush: #efd4cb;
+  --color-sand: #d8c0af;
+}
+
 :root {
   color-scheme: light;
 }
@@ -13,8 +32,8 @@ body,
 body {
   margin: 0;
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f3f4f6;
-  color: #111827;
+  background-color: var(--color-cream);
+  color: var(--color-stone-900);
 }
 
 input[type='number']::-webkit-inner-spin-button {

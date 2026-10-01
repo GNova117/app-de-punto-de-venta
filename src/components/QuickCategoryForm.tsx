@@ -27,7 +27,7 @@ export default function QuickCategoryForm({ usedColors, onDone, onCancel }: Prop
   }
 
   return (
-    <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
+    <div className="rounded-lg border border-brand-200 bg-brand-50 p-3">
       <input
         autoFocus
         value={name}
@@ -39,7 +39,7 @@ export default function QuickCategoryForm({ usedColors, onDone, onCancel }: Prop
           }
         }}
         placeholder="Nombre de la nueva categoría"
-        className="mb-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+        className="mb-2 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
       />
       <div className="mb-2 flex flex-wrap gap-1">
         {CATEGORY_COLORS.map((c) => (
@@ -48,7 +48,7 @@ export default function QuickCategoryForm({ usedColors, onDone, onCancel }: Prop
             key={c}
             onClick={() => setColor(c)}
             style={{ backgroundColor: c }}
-            className={`h-6 w-6 rounded-full border-2 ${color === c ? 'border-gray-800' : 'border-transparent'}`}
+            className={`h-6 w-6 rounded-full border-2 ${color === c ? 'border-stone-800' : 'border-transparent'}`}
             aria-label={c}
           />
         ))}
@@ -58,14 +58,14 @@ export default function QuickCategoryForm({ usedColors, onDone, onCancel }: Prop
         <button
           type="button"
           onClick={create}
-          className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
+          className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700"
         >
           Crear y usar
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-50"
+          className="rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs text-stone-600 hover:bg-stone-50"
         >
           Cancelar
         </button>

@@ -89,8 +89,8 @@ export default function BackupPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
-      <h1 className="mb-1 text-2xl font-bold text-gray-800">Respaldo de datos</h1>
-      <p className="mb-6 text-sm text-gray-500">
+      <h1 className="mb-1 text-2xl font-bold text-stone-800">Respaldo de datos</h1>
+      <p className="mb-6 text-sm text-stone-500">
         Tus productos y ventas se guardan solo en este dispositivo. Descarga un respaldo
         seguido (lo ideal es al hacer el corte del día) y guárdalo en otro lugar, como Google
         Drive, tu correo o WhatsApp.
@@ -104,31 +104,31 @@ export default function BackupPage() {
         </div>
       )}
 
-      <section className="mb-6 rounded-xl border border-gray-200 bg-white p-4">
-        <h2 className="mb-3 text-lg font-semibold text-gray-800">Descargar respaldo</h2>
+      <section className="mb-6 rounded-xl border border-stone-200 bg-white p-4">
+        <h2 className="mb-3 text-lg font-semibold text-stone-800">Descargar respaldo</h2>
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat label="Categorías" value={counts?.categories} />
           <Stat label="Productos" value={counts?.products} />
           <Stat label="Ventas" value={counts?.sales} />
           <Stat label="Movimientos" value={counts?.movements} />
         </div>
-        <p className="mb-4 text-sm text-gray-600">
+        <p className="mb-4 text-sm text-stone-600">
           Último respaldo:{' '}
           <strong>{lastBackupAt ? formatDateTime(lastBackupAt) : 'nunca'}</strong>
         </p>
         <button
           onClick={handleDownload}
           disabled={downloading}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
         >
           {downloading ? 'Generando...' : '⬇️ Descargar respaldo'}
         </button>
         <StatusMessage message={downloadMsg} />
       </section>
 
-      <section className="rounded-xl border border-gray-200 bg-white p-4">
-        <h2 className="mb-1 text-lg font-semibold text-gray-800">Restaurar respaldo</h2>
-        <p className="mb-4 text-sm text-gray-500">
+      <section className="rounded-xl border border-stone-200 bg-white p-4">
+        <h2 className="mb-1 text-lg font-semibold text-stone-800">Restaurar respaldo</h2>
+        <p className="mb-4 text-sm text-stone-500">
           Úsalo si cambias de dispositivo o si se perdieron los datos. Esto{' '}
           <strong>reemplaza todos los datos actuales</strong> de este dispositivo por los del
           archivo.
@@ -143,7 +143,7 @@ export default function BackupPage() {
         {!pending && (
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50"
+            className="rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm hover:bg-stone-50"
           >
             📂 Elegir archivo de respaldo
           </button>
@@ -151,10 +151,10 @@ export default function BackupPage() {
 
         {pending && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-            <p className="mb-2 text-sm font-medium text-gray-800">
+            <p className="mb-2 text-sm font-medium text-stone-800">
               Respaldo del {formatDateTime(pending.exportedAt)}
             </p>
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="mb-4 text-sm text-stone-600">
               Contiene {pending.data.categories.length} categoría(s),{' '}
               {pending.data.products.length} producto(s), {pending.data.sales.length} venta(s) y{' '}
               {pending.data.stockMovements.length} movimiento(s). Se borrarán los datos que tienes
@@ -171,7 +171,7 @@ export default function BackupPage() {
               <button
                 onClick={cancelRestore}
                 disabled={restoring}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+                className="rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm text-stone-600 hover:bg-stone-50"
               >
                 Cancelar
               </button>
@@ -200,9 +200,9 @@ function StatusMessage({ message }: { message: Message | null }) {
 
 function Stat({ label, value }: { label: string; value: number | undefined }) {
   return (
-    <div className="rounded-lg bg-gray-50 p-3 text-center">
-      <p className="text-xl font-bold text-gray-800">{value ?? '–'}</p>
-      <p className="text-xs text-gray-500">{label}</p>
+    <div className="rounded-lg bg-stone-50 p-3 text-center">
+      <p className="text-xl font-bold text-stone-800">{value ?? '–'}</p>
+      <p className="text-xs text-stone-500">{label}</p>
     </div>
   )
 }

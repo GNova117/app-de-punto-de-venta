@@ -118,18 +118,18 @@ export default function ProductsPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
-      <h1 className="mb-1 text-2xl font-bold text-gray-800">Productos</h1>
-      <p className="mb-6 text-sm text-gray-500">
+      <h1 className="mb-1 text-2xl font-bold text-stone-800">Productos</h1>
+      <p className="mb-6 text-sm text-stone-500">
         Registra tus productos escaneando su código de barras, asígnales una categoría y agrega
         una foto para identificarlos fácilmente.
       </p>
 
       <form
         onSubmit={handleSubmit}
-        className="mb-8 grid grid-cols-1 gap-4 rounded-xl border border-gray-200 bg-white p-4 sm:grid-cols-2"
+        className="mb-8 grid grid-cols-1 gap-4 rounded-xl border border-stone-200 bg-white p-4 sm:grid-cols-2"
       >
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-stone-600">
             Código de barras
           </label>
           <BarcodeField
@@ -140,7 +140,7 @@ export default function ProductsPage() {
         </div>
 
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-xs font-medium text-gray-600">Foto del producto</label>
+          <label className="mb-1 block text-xs font-medium text-stone-600">Foto del producto</label>
           <ImagePicker
             value={form.imageDataUrl}
             onChange={(v) => setForm((f) => ({ ...f, imageDataUrl: v }))}
@@ -148,23 +148,23 @@ export default function ProductsPage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">Nombre</label>
+          <label className="mb-1 block text-xs font-medium text-stone-600">Nombre</label>
           <input
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             placeholder="Ej. Playera azul talla M"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
           />
         </div>
 
         <div>
           <div className="mb-1 flex items-center justify-between">
-            <label className="block text-xs font-medium text-gray-600">Categoría</label>
+            <label className="block text-xs font-medium text-stone-600">Categoría</label>
             {!creatingCategory && (
               <button
                 type="button"
                 onClick={() => setCreatingCategory(true)}
-                className="text-xs font-medium text-blue-600 hover:underline"
+                className="text-xs font-medium text-brand-600 hover:underline"
               >
                 + Nueva categoría
               </button>
@@ -183,7 +183,7 @@ export default function ProductsPage() {
             <select
               value={form.categoryId}
               onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
             >
               <option value="">Selecciona...</option>
               {categories?.map((c) => (
@@ -196,7 +196,7 @@ export default function ProductsPage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-stone-600">
             Precio de venta
           </label>
           <input
@@ -205,12 +205,12 @@ export default function ProductsPage() {
             step="0.01"
             value={form.price}
             onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-stone-600">
             Costo (opcional)
           </label>
           <input
@@ -219,12 +219,12 @@ export default function ProductsPage() {
             step="0.01"
             value={form.cost}
             onChange={(e) => setForm((f) => ({ ...f, cost: e.target.value }))}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-stone-600">
             Stock inicial {editingId && '(usa Entradas/Salidas para ajustar)'}
           </label>
           <input
@@ -233,12 +233,12 @@ export default function ProductsPage() {
             value={form.stock}
             disabled={!!editingId}
             onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none disabled:bg-gray-100"
+            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none disabled:bg-stone-100"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-stone-600">
             Stock mínimo (alerta)
           </label>
           <input
@@ -246,7 +246,7 @@ export default function ProductsPage() {
             min="0"
             value={form.minStock}
             onChange={(e) => setForm((f) => ({ ...f, minStock: e.target.value }))}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
           />
         </div>
 
@@ -255,7 +255,7 @@ export default function ProductsPage() {
         <div className="flex gap-2 sm:col-span-2">
           <button
             type="submit"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
           >
             {editingId ? 'Guardar cambios' : 'Agregar producto'}
           </button>
@@ -263,7 +263,7 @@ export default function ProductsPage() {
             <button
               type="button"
               onClick={resetForm}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+              className="rounded-lg border border-stone-300 px-4 py-2 text-sm text-stone-600 hover:bg-stone-50"
             >
               Cancelar
             </button>
@@ -276,12 +276,12 @@ export default function ProductsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar por nombre o código..."
-          className="min-w-[220px] flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="min-w-[220px] flex-1 rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
         />
         <select
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
         >
           <option value="todas">Todas las categorías</option>
           {categories?.map((c) => (
@@ -299,20 +299,20 @@ export default function ProductsPage() {
           return (
             <div
               key={p.id}
-              className="flex gap-3 rounded-xl border border-gray-200 bg-white p-3"
+              className="flex gap-3 rounded-xl border border-stone-200 bg-white p-3"
             >
-              <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-50">
+              <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-stone-50">
                 {p.imageDataUrl ? (
                   <img src={p.imageDataUrl} alt={p.name} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xl text-gray-300">
+                  <div className="flex h-full w-full items-center justify-center text-xl text-stone-300">
                     📦
                   </div>
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-gray-800">{p.name}</p>
-                <p className="truncate text-xs text-gray-500">#{p.barcode}</p>
+                <p className="truncate font-medium text-stone-800">{p.name}</p>
+                <p className="truncate text-xs text-stone-500">#{p.barcode}</p>
                 {cat && (
                   <span
                     className="mt-1 inline-block rounded-full px-2 py-0.5 text-xs text-white"
@@ -322,11 +322,11 @@ export default function ProductsPage() {
                   </span>
                 )}
                 <div className="mt-1 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-800">
+                  <span className="text-sm font-semibold text-stone-800">
                     {formatMoney(p.price)}
                   </span>
                   <span
-                    className={`text-xs font-medium ${lowStock ? 'text-red-600' : 'text-gray-500'}`}
+                    className={`text-xs font-medium ${lowStock ? 'text-red-600' : 'text-stone-500'}`}
                   >
                     Stock: {p.stock}
                   </span>
@@ -347,7 +347,7 @@ export default function ProductsPage() {
                       })
                       window.scrollTo({ top: 0, behavior: 'smooth' })
                     }}
-                    className="text-xs font-medium text-blue-600 hover:underline"
+                    className="text-xs font-medium text-brand-600 hover:underline"
                   >
                     Editar
                   </button>
@@ -363,7 +363,7 @@ export default function ProductsPage() {
           )
         })}
         {filteredProducts.length === 0 && (
-          <p className="text-sm text-gray-500">No hay productos que coincidan.</p>
+          <p className="text-sm text-stone-500">No hay productos que coincidan.</p>
         )}
       </div>
     </div>

@@ -43,29 +43,29 @@ export default function CategoriesPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
-      <h1 className="mb-1 text-2xl font-bold text-gray-800">Categorías de productos</h1>
-      <p className="mb-6 text-sm text-gray-500">
+      <h1 className="mb-1 text-2xl font-bold text-stone-800">Categorías de productos</h1>
+      <p className="mb-6 text-sm text-stone-500">
         Clasifica tus productos al ingresarlos: por ejemplo <strong>Ropa</strong>,{' '}
         <strong>Cosméticos</strong> o <strong>Gorras</strong>. Puedes agregar las que necesites.
       </p>
 
       <form
         onSubmit={handleSubmit}
-        className="mb-6 flex flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4"
+        className="mb-6 flex flex-wrap items-end gap-3 rounded-xl border border-stone-200 bg-white p-4"
       >
         <div className="flex-1 min-w-[180px]">
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-stone-600">
             Nombre de la categoría
           </label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Ej. Ropa, Cosméticos, Gorras..."
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">Color</label>
+          <label className="mb-1 block text-xs font-medium text-stone-600">Color</label>
           <div className="flex gap-1">
             {COLOR_OPTIONS.map((c) => (
               <button
@@ -74,7 +74,7 @@ export default function CategoriesPage() {
                 onClick={() => setColor(c)}
                 style={{ backgroundColor: c }}
                 className={`h-7 w-7 rounded-full border-2 ${
-                  color === c ? 'border-gray-800' : 'border-transparent'
+                  color === c ? 'border-stone-800' : 'border-transparent'
                 }`}
                 aria-label={c}
               />
@@ -83,7 +83,7 @@ export default function CategoriesPage() {
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
         >
           {editingId ? 'Guardar cambios' : 'Agregar categoría'}
         </button>
@@ -94,7 +94,7 @@ export default function CategoriesPage() {
               setEditingId(null)
               setName('')
             }}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+            className="rounded-lg border border-stone-300 px-4 py-2 text-sm text-stone-600 hover:bg-stone-50"
           >
             Cancelar
           </button>
@@ -106,7 +106,7 @@ export default function CategoriesPage() {
         {categories?.map((cat) => (
           <div
             key={cat.id}
-            className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4"
+            className="flex items-center justify-between rounded-xl border border-stone-200 bg-white p-4"
           >
             <div className="flex items-center gap-3">
               <span
@@ -114,8 +114,8 @@ export default function CategoriesPage() {
                 style={{ backgroundColor: cat.color }}
               />
               <div>
-                <p className="font-medium text-gray-800">{cat.name}</p>
-                <p className="text-xs text-gray-500">
+                <p className="font-medium text-stone-800">{cat.name}</p>
+                <p className="text-xs text-stone-500">
                   {productCounts?.get(cat.id!) ?? 0} producto(s)
                 </p>
               </div>
@@ -127,7 +127,7 @@ export default function CategoriesPage() {
                   setName(cat.name)
                   setColor(cat.color)
                 }}
-                className="rounded-lg px-2 py-1 text-sm text-blue-600 hover:bg-blue-50"
+                className="rounded-lg px-2 py-1 text-sm text-brand-600 hover:bg-brand-50"
               >
                 Editar
               </button>
@@ -141,7 +141,7 @@ export default function CategoriesPage() {
           </div>
         ))}
         {categories?.length === 0 && (
-          <p className="text-sm text-gray-500">Aún no hay categorías.</p>
+          <p className="text-sm text-stone-500">Aún no hay categorías.</p>
         )}
       </div>
     </div>

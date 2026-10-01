@@ -34,13 +34,13 @@ export default function BarcodeField({
           }
         }}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
       />
       <button
         type="button"
         onClick={() => setScanning(true)}
         title="Escanear con cámara"
-        className="shrink-0 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm hover:bg-gray-50"
+        className="shrink-0 rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm hover:bg-stone-50"
       >
         📷
       </button>

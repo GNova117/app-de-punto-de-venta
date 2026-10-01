@@ -99,8 +99,8 @@ export default function PosPage() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 lg:flex-row">
       <div className="flex-1">
-        <h1 className="mb-1 text-2xl font-bold text-gray-800">Vender</h1>
-        <p className="mb-4 text-sm text-gray-500">
+        <h1 className="mb-1 text-2xl font-bold text-stone-800">Vender</h1>
+        <p className="mb-4 text-sm text-stone-500">
           Escanea el código de barras del producto o selecciónalo de la lista.
         </p>
 
@@ -112,8 +112,8 @@ export default function PosPage() {
             onClick={() => setCategoryFilter('todas')}
             className={`rounded-full px-3 py-1 text-xs font-medium ${
               categoryFilter === 'todas'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-brand-600 text-white'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
             }`}
           >
             Todas
@@ -125,7 +125,7 @@ export default function PosPage() {
               className={`rounded-full px-3 py-1 text-xs font-medium ${
                 categoryFilter === String(c.id)
                   ? 'text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
               }`}
               style={categoryFilter === String(c.id) ? { backgroundColor: c.color } : undefined}
             >
@@ -140,24 +140,24 @@ export default function PosPage() {
               key={p.id}
               onClick={() => addToCart(p)}
               disabled={p.stock <= 0}
-              className="flex flex-col items-center gap-1 rounded-xl border border-gray-200 bg-white p-2 text-center hover:border-blue-400 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex flex-col items-center gap-1 rounded-xl border border-stone-200 bg-white p-2 text-center hover:border-brand-400 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <div className="h-16 w-16 overflow-hidden rounded-lg bg-gray-50">
+              <div className="h-16 w-16 overflow-hidden rounded-lg bg-stone-50">
                 {p.imageDataUrl ? (
                   <img src={p.imageDataUrl} alt={p.name} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xl text-gray-300">
+                  <div className="flex h-full w-full items-center justify-center text-xl text-stone-300">
                     📦
                   </div>
                 )}
               </div>
-              <p className="line-clamp-2 text-xs font-medium text-gray-700">{p.name}</p>
-              <p className="text-xs font-semibold text-gray-800">{formatMoney(p.price)}</p>
-              <p className="text-[10px] text-gray-400">Stock: {p.stock}</p>
+              <p className="line-clamp-2 text-xs font-medium text-stone-700">{p.name}</p>
+              <p className="text-xs font-semibold text-stone-800">{formatMoney(p.price)}</p>
+              <p className="text-[10px] text-stone-400">Stock: {p.stock}</p>
             </button>
           ))}
           {visibleProducts.length === 0 && (
-            <p className="col-span-full text-sm text-gray-500">
+            <p className="col-span-full text-sm text-stone-500">
               No hay productos en esta categoría.
             </p>
           )}
@@ -165,14 +165,14 @@ export default function PosPage() {
       </div>
 
       <div className="w-full shrink-0 lg:w-96">
-        <div className="sticky top-20 rounded-xl border border-gray-200 bg-white p-4">
-          <h2 className="mb-3 text-lg font-semibold text-gray-800">Carrito</h2>
+        <div className="sticky top-20 rounded-xl border border-stone-200 bg-white p-4">
+          <h2 className="mb-3 text-lg font-semibold text-stone-800">Carrito</h2>
           <div className="max-h-[45vh] space-y-2 overflow-y-auto">
             {cart.map((line) => (
               <div key={line.productId} className="flex items-center gap-2 text-sm">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-gray-800">{line.name}</p>
-                  <p className="text-xs text-gray-500">{formatMoney(line.price)} c/u</p>
+                  <p className="truncate font-medium text-stone-800">{line.name}</p>
+                  <p className="text-xs text-stone-500">{formatMoney(line.price)} c/u</p>
                 </div>
                 <input
                   type="number"
@@ -180,14 +180,14 @@ export default function PosPage() {
                   max={line.maxStock}
                   value={line.quantity}
                   onChange={(e) => updateQuantity(line.productId, Number(e.target.value))}
-                  className="w-14 rounded-lg border border-gray-300 px-1 py-1 text-center text-sm"
+                  className="w-14 rounded-lg border border-stone-300 px-1 py-1 text-center text-sm"
                 />
-                <span className="w-16 shrink-0 text-right font-medium text-gray-800">
+                <span className="w-16 shrink-0 text-right font-medium text-stone-800">
                   {formatMoney(line.price * line.quantity)}
                 </span>
                 <button
                   onClick={() => removeLine(line.productId)}
-                  className="text-gray-400 hover:text-red-600"
+                  className="text-stone-400 hover:text-red-600"
                   aria-label="Quitar"
                 >
                   ✕
@@ -195,27 +195,27 @@ export default function PosPage() {
               </div>
             ))}
             {cart.length === 0 && (
-              <p className="text-sm text-gray-400">El carrito está vacío.</p>
+              <p className="text-sm text-stone-400">El carrito está vacío.</p>
             )}
           </div>
 
-          <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-3">
-            <span className="text-base font-semibold text-gray-800">Total</span>
-            <span className="text-xl font-bold text-gray-900">{formatMoney(total)}</span>
+          <div className="mt-4 flex items-center justify-between border-t border-stone-200 pt-3">
+            <span className="text-base font-semibold text-stone-800">Total</span>
+            <span className="text-xl font-bold text-stone-900">{formatMoney(total)}</span>
           </div>
 
           <div className="mt-4 flex gap-2">
             <button
               onClick={clearCart}
               disabled={cart.length === 0}
-              className="flex-1 rounded-lg border border-gray-300 py-2 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+              className="flex-1 rounded-lg border border-stone-300 py-2 text-sm text-stone-600 hover:bg-stone-50 disabled:opacity-40"
             >
               Vaciar
             </button>
             <button
               onClick={() => setCheckoutOpen(true)}
               disabled={cart.length === 0}
-              className="flex-1 rounded-lg bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-40"
+              className="flex-1 rounded-lg bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-40"
             >
               Cobrar
             </button>
@@ -300,13 +300,13 @@ function CheckoutModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800">Cobrar</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700">
+          <h3 className="text-lg font-semibold text-stone-800">Cobrar</h3>
+          <button onClick={onClose} className="text-stone-400 hover:text-stone-700">
             ✕
           </button>
         </div>
 
-        <p className="mb-4 text-center text-3xl font-bold text-gray-900">{formatMoney(total)}</p>
+        <p className="mb-4 text-center text-3xl font-bold text-stone-900">{formatMoney(total)}</p>
 
         <div className="mb-4 grid grid-cols-3 gap-2">
           {(['efectivo', 'transferencia', 'mixto'] as PaymentMethod[]).map((m) => (
@@ -314,7 +314,7 @@ function CheckoutModal({
               key={m}
               onClick={() => setMethod(m)}
               className={`rounded-lg border px-2 py-2 text-xs font-medium capitalize ${
-                method === m ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-300 text-gray-600'
+                method === m ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-stone-300 text-stone-600'
               }`}
             >
               {m}
@@ -324,7 +324,7 @@ function CheckoutModal({
 
         {method === 'efectivo' && (
           <div className="mb-4">
-            <label className="mb-1 block text-xs font-medium text-gray-600">
+            <label className="mb-1 block text-xs font-medium text-stone-600">
               Efectivo recibido
             </label>
             <input
@@ -333,14 +333,14 @@ function CheckoutModal({
               step="0.01"
               value={cashReceived}
               onChange={(e) => setCashReceived(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
             />
-            <p className="mt-1 text-sm text-gray-500">Cambio: {formatMoney(change)}</p>
+            <p className="mt-1 text-sm text-stone-500">Cambio: {formatMoney(change)}</p>
           </div>
         )}
 
         {method === 'transferencia' && (
-          <p className="mb-4 text-sm text-gray-500">
+          <p className="mb-4 text-sm text-stone-500">
             Se registrará el total como pago por transferencia.
           </p>
         )}
@@ -348,18 +348,18 @@ function CheckoutModal({
         {method === 'mixto' && (
           <div className="mb-4 grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">Efectivo</label>
+              <label className="mb-1 block text-xs font-medium text-stone-600">Efectivo</label>
               <input
                 type="number"
                 min={0}
                 step="0.01"
                 value={cashPortion}
                 onChange={(e) => setCashPortion(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">
+              <label className="mb-1 block text-xs font-medium text-stone-600">
                 Transferencia
               </label>
               <input
@@ -368,12 +368,12 @@ function CheckoutModal({
                 step="0.01"
                 value={transferPortion}
                 onChange={(e) => setTransferPortion(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
               />
             </div>
             <p
               className={`col-span-2 text-xs ${
-                Math.abs(mixedSum - total) > 0.01 ? 'text-red-600' : 'text-gray-500'
+                Math.abs(mixedSum - total) > 0.01 ? 'text-red-600' : 'text-stone-500'
               }`}
             >
               Suma: {formatMoney(mixedSum)} / Total: {formatMoney(total)}

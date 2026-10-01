@@ -67,18 +67,18 @@ export default function StockMovementsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
-      <h1 className="mb-1 text-2xl font-bold text-gray-800">Entradas y salidas de producto</h1>
-      <p className="mb-6 text-sm text-gray-500">
+      <h1 className="mb-1 text-2xl font-bold text-stone-800">Entradas y salidas de producto</h1>
+      <p className="mb-6 text-sm text-stone-500">
         Registra reabastecimientos (entradas) o mermas/ajustes (salidas) para mantener tu stock
         disponible siempre actualizado.
       </p>
 
       <form
         onSubmit={handleSubmit}
-        className="mb-8 flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4"
+        className="mb-8 flex flex-col gap-4 rounded-xl border border-stone-200 bg-white p-4"
       >
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-stone-600">
             Código de barras del producto
           </label>
           <BarcodeField
@@ -90,7 +90,7 @@ export default function StockMovementsPage() {
         </div>
 
         {product && (
-          <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
+          <div className="flex items-center gap-3 rounded-lg bg-stone-50 p-3">
             <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-white">
               {product.imageDataUrl ? (
                 <img
@@ -99,14 +99,14 @@ export default function StockMovementsPage() {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-xl text-gray-300">
+                <div className="flex h-full w-full items-center justify-center text-xl text-stone-300">
                   📦
                 </div>
               )}
             </div>
             <div>
-              <p className="font-medium text-gray-800">{product.name}</p>
-              <p className="text-xs text-gray-500">
+              <p className="font-medium text-stone-800">{product.name}</p>
+              <p className="text-xs text-stone-500">
                 {categoryById.get(product.categoryId)?.name ?? 'Sin categoría'} · Stock actual:{' '}
                 <strong>{product.stock}</strong>
               </p>
@@ -116,7 +116,7 @@ export default function StockMovementsPage() {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">
+            <label className="mb-1 block text-xs font-medium text-stone-600">
               Tipo de movimiento
             </label>
             <div className="flex gap-2">
@@ -129,7 +129,7 @@ export default function StockMovementsPage() {
                 className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium ${
                   type === 'entrada'
                     ? 'border-green-600 bg-green-50 text-green-700'
-                    : 'border-gray-300 text-gray-600'
+                    : 'border-stone-300 text-stone-600'
                 }`}
               >
                 ⬆️ Entrada
@@ -143,7 +143,7 @@ export default function StockMovementsPage() {
                 className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium ${
                   type === 'salida'
                     ? 'border-red-600 bg-red-50 text-red-700'
-                    : 'border-gray-300 text-gray-600'
+                    : 'border-stone-300 text-stone-600'
                 }`}
               >
                 ⬇️ Salida
@@ -152,22 +152,22 @@ export default function StockMovementsPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">Cantidad</label>
+            <label className="mb-1 block text-xs font-medium text-stone-600">Cantidad</label>
             <input
               type="number"
               min="1"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">Motivo</label>
+            <label className="mb-1 block text-xs font-medium text-stone-600">Motivo</label>
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
             >
               {(type === 'entrada' ? ENTRADA_REASONS : SALIDA_REASONS).map((r) => (
                 <option key={r} value={r}>
@@ -179,14 +179,14 @@ export default function StockMovementsPage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-stone-600">
             Nota (opcional)
           </label>
           <input
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Ej. Proveedor Textiles S.A., folio de factura..."
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
           />
         </div>
 
@@ -206,10 +206,10 @@ export default function StockMovementsPage() {
         </button>
       </form>
 
-      <h2 className="mb-3 text-lg font-semibold text-gray-800">Historial de movimientos</h2>
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <h2 className="mb-3 text-lg font-semibold text-stone-800">Historial de movimientos</h2>
+      <div className="overflow-hidden rounded-xl border border-stone-200 bg-white">
         <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 text-xs text-gray-500">
+          <thead className="bg-stone-50 text-xs text-stone-500">
             <tr>
               <th className="px-4 py-2">Fecha</th>
               <th className="px-4 py-2">Producto</th>
@@ -220,11 +220,11 @@ export default function StockMovementsPage() {
           </thead>
           <tbody>
             {movements?.map((m) => (
-              <tr key={m.id} className="border-t border-gray-100">
-                <td className="px-4 py-2 whitespace-nowrap text-gray-500">
+              <tr key={m.id} className="border-t border-stone-100">
+                <td className="px-4 py-2 whitespace-nowrap text-stone-500">
                   {formatDateTime(m.date)}
                 </td>
-                <td className="px-4 py-2 font-medium text-gray-800">
+                <td className="px-4 py-2 font-medium text-stone-800">
                   {m.product?.name ?? 'Producto eliminado'}
                 </td>
                 <td className="px-4 py-2">
@@ -239,15 +239,15 @@ export default function StockMovementsPage() {
                   </span>
                 </td>
                 <td className="px-4 py-2">{m.quantity}</td>
-                <td className="px-4 py-2 text-gray-600">
+                <td className="px-4 py-2 text-stone-600">
                   {m.reason}
-                  {m.note && <span className="text-gray-400"> · {m.note}</span>}
+                  {m.note && <span className="text-stone-400"> · {m.note}</span>}
                 </td>
               </tr>
             ))}
             {movements?.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-gray-400">
+                <td colSpan={5} className="px-4 py-6 text-center text-stone-400">
                   Sin movimientos registrados aún.
                 </td>
               </tr>
