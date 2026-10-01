@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Link, useLocation } from 'react-router-dom'
-import { useLastBackupAt } from '../backup'
+import { useLocation } from 'react-router-dom'
+import { downloadBackup, useLastBackupAt } from '../backup'
 import { db } from '../db'
 import { formatDateTime } from '../utils/format'
 
@@ -23,7 +23,7 @@ export default function BackupReminder() {
     return lastChange > lastBackupAt && isOld
   }, [lastBackupAt])
 
-  if (pathname === '/respaldo' || !needsBackup) return null
+  if (pathname === '/admin/respaldo' || !needsBackup) return null
 
   return (
     <div className="border-b border-amber-200 bg-amber-50">
@@ -32,12 +32,12 @@ export default function BackupReminder() {
           💾 Tienes ventas o movimientos sin respaldar
           {lastBackupAt ? ` (último respaldo: ${formatDateTime(lastBackupAt)})` : ''}.
         </span>
-        <Link
-          to="/respaldo"
+        <button
+          onClick={() => downloadBackup()}
           className="rounded-lg bg-amber-600 px-3 py-1 text-xs font-medium text-white hover:bg-amber-700"
         >
-          Hacer respaldo
-        </Link>
+          Descargar respaldo
+        </button>
       </div>
     </div>
   )

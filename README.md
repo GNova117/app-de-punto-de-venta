@@ -19,10 +19,35 @@ gorras y accesorios. Funciona en el navegador y guarda todos los datos localment
   del producto.
 - **Categorías de productos**: clasifica cada producto al darlo de alta. Incluye de
   ejemplo las categorías **Ropa**, **Cosméticos**, **Gorras**, **Accesorios** y
-  **Calzado**, y puedes crear, editar o eliminar las que necesites.
+  **Calzado**. Puedes crear una categoría nueva desde el mismo formulario del producto
+  ("+ Nueva categoría") o administrarlas en su propia sección.
 - **Respaldo de datos**: descarga un archivo con todos tus productos, ventas y
   movimientos, y restáuralo en el mismo u otro dispositivo. La app te avisa cuando hay
   ventas sin respaldar.
+- **Acceso de administrador**: productos, categorías, entradas/salidas y respaldo están
+  protegidos con contraseña. La caja (vender, historial y corte) se usa sin contraseña.
+
+## Administración y caja
+
+El menú tiene dos zonas:
+
+| Zona | Secciones | ¿Pide contraseña? |
+|---|---|---|
+| **Caja** | Vender, Historial de ventas, Corte del día | No |
+| **🔒 Administración** | Productos, Categorías, Entradas/Salidas, Respaldo, Contraseña | Sí |
+
+- La primera vez que alguien entra a **Administración** la app pide **crear** la
+  contraseña (mínimo 4 caracteres, puede ser un PIN). Hazlo tú antes de dar la app a quien
+  atienda la caja.
+- La sesión de administración se cierra con **🔒 Cerrar sesión**, al recargar la app, o
+  sola tras **10 minutos sin usarla**.
+- Puedes cambiarla en **Administración → Contraseña**.
+- **Importante:** la contraseña evita que el personal entre a dar de alta productos o
+  mover inventario, pero no es seguridad bancaria: alguien con conocimientos técnicos y
+  acceso al dispositivo podría saltársela, porque todo se guarda en el propio navegador.
+- **Si olvidas la contraseña:** descarga un respaldo desde **Corte del día**, borra los
+  datos de este sitio en la configuración del navegador, entra a Administración, crea una
+  contraseña nueva y restaura el respaldo en **Administración → Respaldo**.
 
 ## Respaldo de tus datos (importante)
 
@@ -30,12 +55,13 @@ Los datos viven solo en el navegador del dispositivo donde usas la app. Si el di
 se descompone, se pierde o se borran los datos del navegador, **la información se pierde**
 a menos que tengas un respaldo.
 
-- Ve a **💾 Respaldo → Descargar respaldo** (o usa el botón en **Corte del día** al cerrar
-  caja). Se descarga un archivo `respaldo-punto-de-venta-AAAA-MM-DD-HHMM.json`.
+- Usa el botón **Descargar respaldo** en **Corte del día** al cerrar caja (o en el aviso
+  amarillo, o en **Administración → Respaldo**). Se descarga un archivo
+  `respaldo-punto-de-venta-AAAA-MM-DD-HHMM.json`.
 - Guárdalo **fuera del dispositivo**: súbelo a Google Drive, mándatelo por correo o por
   WhatsApp.
-- Para recuperar tus datos (o pasarlos a otro dispositivo): **💾 Respaldo → Restaurar
-  respaldo**, elige el archivo y confirma. Esto reemplaza los datos actuales de ese
+- Para recuperar tus datos (o pasarlos a otro dispositivo): **Administración → Respaldo →
+  Restaurar respaldo**, elige el archivo y confirma. Esto reemplaza los datos actuales de ese
   dispositivo por los del respaldo.
 
 ## Instalación
@@ -90,15 +116,18 @@ Requiere tener [Node.js](https://nodejs.org) instalado (versión 18 o superior).
 
 ## Flujo recomendado
 
-1. Ve a **Categorías** y confirma o ajusta las categorías (Ropa, Cosméticos, Gorras, etc.).
-2. Ve a **Productos** y da de alta cada artículo: escanea su código de barras, tómale
-   una foto, asígnale categoría, precio y stock inicial.
-3. Usa **Vender** para cobrar: escanea el código de barras de cada producto (o
-   selecciónalo de la lista), elige el método de pago (efectivo, transferencia o
-   mixto) y confirma la venta.
-4. Usa **Entradas/Salidas** cuando llegue mercancía nueva o cuando haya que dar de baja
-   producto dañado o extraviado.
-5. Consulta **Historial de ventas** y **Corte del día** para revisar y cerrar la caja.
+1. Entra a **Administración** y crea la contraseña.
+2. En **Administración → Categorías** confirma o ajusta las categorías (Ropa, Cosméticos,
+   Gorras, etc.).
+3. En **Administración → Productos** da de alta cada artículo: escanea su código de
+   barras, tómale una foto, asígnale categoría (o crea una con "+ Nueva categoría"),
+   precio y stock inicial.
+4. Cierra la sesión de administración. En la caja usa **Vender** para cobrar: escanea el
+   código de barras de cada producto (o selecciónalo de la lista), elige el método de
+   pago (efectivo, transferencia o mixto) y confirma la venta.
+5. Usa **Administración → Entradas/Salidas** cuando llegue mercancía nueva o cuando haya
+   que dar de baja producto dañado o extraviado.
+6. Consulta **Historial de ventas** y **Corte del día** para revisar y cerrar la caja.
 
 ## Notas técnicas
 
