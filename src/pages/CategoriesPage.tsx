@@ -1,18 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
+import { CATEGORY_COLORS as COLOR_OPTIONS } from '../categoryColors'
 import { db } from '../db'
-import { createCategory, deleteCategory, updateCategory } from '../repo'
-
-const COLOR_OPTIONS = [
-  '#2563eb',
-  '#db2777',
-  '#16a34a',
-  '#d97706',
-  '#7c3aed',
-  '#dc2626',
-  '#0891b2',
-  '#4b5563',
-]
+import { deleteCategory, saveCategory } from '../repo'
 
 export default function CategoriesPage() {
   const categories = useLiveQuery(() => db.categories.orderBy('name').toArray(), [])
@@ -33,14 +23,10 @@ export default function CategoriesPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-    if (!name.trim()) {
-      setError('El nombre de la categoría es obligatorio')
+    const result = await saveCategory({ id: editingId ?? undefined, name, color })
+    if (!result.ok) {
+      setError(result.error)
       return
-    }
-    if (editingId) {
-      await updateCategory(editingId, { name: name.trim(), color })
-    } else {
-      await createCategory(name, color)
     }
     setName('')
     setColor(COLOR_OPTIONS[0])

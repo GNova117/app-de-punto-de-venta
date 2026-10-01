@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo, useState } from 'react'
 import BarcodeField from '../components/BarcodeField'
 import ImagePicker from '../components/ImagePicker'
+import QuickCategoryForm from '../components/QuickCategoryForm'
 import { db } from '../db'
 import { createProduct, deleteProduct, getProductByBarcode, updateProduct } from '../repo'
 import type { Product } from '../types'
@@ -27,6 +28,7 @@ export default function ProductsPage() {
   const [error, setError] = useState('')
   const [filterCategory, setFilterCategory] = useState<string>('todas')
   const [search, setSearch] = useState('')
+  const [creatingCategory, setCreatingCategory] = useState(false)
 
   const categoryById = useMemo(() => {
     const map = new Map<number, { name: string; color: string }>()
@@ -156,19 +158,41 @@ export default function ProductsPage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">Categoría</label>
-          <select
-            value={form.categoryId}
-            onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-          >
-            <option value="">Selecciona...</option>
-            {categories?.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          <div className="mb-1 flex items-center justify-between">
+            <label className="block text-xs font-medium text-gray-600">Categoría</label>
+            {!creatingCategory && (
+              <button
+                type="button"
+                onClick={() => setCreatingCategory(true)}
+                className="text-xs font-medium text-blue-600 hover:underline"
+              >
+                + Nueva categoría
+              </button>
+            )}
+          </div>
+          {creatingCategory ? (
+            <QuickCategoryForm
+              usedColors={categories?.map((c) => c.color) ?? []}
+              onDone={(categoryId) => {
+                setForm((f) => ({ ...f, categoryId: String(categoryId) }))
+                setCreatingCategory(false)
+              }}
+              onCancel={() => setCreatingCategory(false)}
+            />
+          ) : (
+            <select
+              value={form.categoryId}
+              onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            >
+              <option value="">Selecciona...</option>
+              {categories?.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div>

@@ -15,17 +15,31 @@ export async function listCategories(): Promise<Category[]> {
   return db.categories.orderBy('name').toArray()
 }
 
-export async function createCategory(name: string, color: string): Promise<number> {
-  const id = await db.categories.add({
-    name: name.trim(),
-    color,
-    createdAt: new Date().toISOString(),
-  })
-  return id as number
+export async function findCategoryByName(name: string): Promise<Category | undefined> {
+  return db.categories.where('name').equalsIgnoreCase(name.trim()).first()
 }
 
-export async function updateCategory(id: number, changes: Partial<Category>): Promise<void> {
-  await db.categories.update(id, changes)
+type SaveCategoryResult = { ok: true; id: number } | { ok: false; error: string }
+
+export async function saveCategory(input: {
+  id?: number
+  name: string
+  color: string
+}): Promise<SaveCategoryResult> {
+  const name = input.name.trim()
+  if (!name) return { ok: false, error: 'El nombre de la categoría es obligatorio' }
+
+  const existing = await findCategoryByName(name)
+  if (existing && existing.id !== input.id) {
+    return { ok: false, error: `Ya existe la categoría "${existing.name}".` }
+  }
+
+  if (input.id) {
+    await db.categories.update(input.id, { name, color: input.color })
+    return { ok: true, id: input.id }
+  }
+  const id = await db.categories.add({ name, color: input.color, createdAt: new Date().toISOString() })
+  return { ok: true, id: id as number }
 }
 
 export async function deleteCategory(id: number): Promise<{ ok: boolean; reason?: string }> {
