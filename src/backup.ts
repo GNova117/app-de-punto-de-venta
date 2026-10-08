@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { db } from './db'
+import { db, recomputeCutoffs } from './db'
 import type { CashCutoff, Category, Product, Promotion, Sale, StockMovement } from './types'
 
 const APP_ID = 'punto-de-venta'
@@ -132,6 +132,7 @@ export async function restoreBackup(backup: BackupFile): Promise<void> {
       )
       await db.promotions.bulkPut(promotions ?? [])
       await db.cashCutoffs.bulkPut(cashCutoffs ?? [])
+      if (backup.schemaVersion < 3) await recomputeCutoffs(db.sales, db.cashCutoffs)
     },
   )
 }

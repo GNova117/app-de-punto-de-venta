@@ -1,3 +1,4 @@
+import { summarizeSales } from './cutoffSummary'
 import { db, todayRange } from './db'
 import type {
   AppliedPromotion,
@@ -210,25 +211,10 @@ export async function listSalesByDate(dateStr?: string): Promise<Sale[]> {
 
 export async function getDailyCutoff(dateStr?: string) {
   const sales = await listSalesByDate(dateStr)
-  const totalCash = sales.reduce((sum, s) => sum + s.cashAmount, 0)
-  const totalTransfer = sales.reduce((sum, s) => sum + s.transferAmount, 0)
-  const total = totalCash + totalTransfer
-  const totalCost = sales.reduce(
-    (sum, s) => sum + s.items.reduce((isum, it) => isum + (it.cost ?? 0) * it.quantity, 0),
-    0,
-  )
-  const totalDiscount = sales.reduce((sum, s) => sum + (s.discount ?? 0), 0)
-  const totalProfit = total - totalCost
   return {
     date: dateStr ?? new Date().toISOString(),
     sales,
-    totalCash,
-    totalTransfer,
-    total,
-    totalCost,
-    totalDiscount,
-    totalProfit,
-    count: sales.length,
+    ...summarizeSales(sales),
   }
 }
 

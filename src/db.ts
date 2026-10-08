@@ -1,5 +1,7 @@
 import Dexie, { type Table } from 'dexie'
+import { summarizeSales } from './cutoffSummary'
 import type { CashCutoff, Category, Product, Promotion, Sale, StockMovement } from './types'
+import { parseLocalDate } from './utils/format'
 
 class PosDatabase extends Dexie {
   categories!: Table<Category, number>
@@ -24,6 +26,35 @@ class PosDatabase extends Dexie {
       sales: '++id, date, paymentMethod',
       promotions: '++id',
       cashCutoffs: '++id, &date',
+    })
+    // Los cortes cerrados antes de esta versión pudieron guardar los totales del día anterior.
+    this.version(3)
+      .stores({
+        categories: '++id, name',
+        products: '++id, barcode, categoryId, name',
+        stockMovements: '++id, productId, type, date',
+        sales: '++id, date, paymentMethod',
+        promotions: '++id',
+        cashCutoffs: '++id, &date',
+      })
+      .upgrade((tx) => recomputeCutoffs(tx.table('sales'), tx.table('cashCutoffs')))
+  }
+}
+
+export async function recomputeCutoffs(
+  sales: Table<Sale, number>,
+  cashCutoffs: Table<CashCutoff, number>,
+): Promise<void> {
+  for (const cutoff of await cashCutoffs.toArray()) {
+    const { start, end } = todayRange(cutoff.date)
+    const summary = summarizeSales(await sales.where('date').between(start, end, true, true).toArray())
+    await cashCutoffs.update(cutoff.id!, {
+      totalCash: summary.totalCash,
+      totalTransfer: summary.totalTransfer,
+      total: summary.total,
+      totalCost: summary.totalCost,
+      totalProfit: summary.totalProfit,
+      salesCount: summary.count,
     })
   }
 }
@@ -51,7 +82,7 @@ export async function seedDatabase() {
 }
 
 export function todayRange(dateStr?: string) {
-  const base = dateStr ? new Date(dateStr) : new Date()
+  const base = dateStr ? parseLocalDate(dateStr) : new Date()
   const start = new Date(base)
   start.setHours(0, 0, 0, 0)
   const end = new Date(base)
