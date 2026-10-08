@@ -1,12 +1,33 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { downloadBackup } from '../backup'
-import { getDailyCutoff } from '../repo'
+import { closeCashCutoff, getCashCutoffByDate, getDailyCutoff } from '../repo'
 import { formatDate, formatDateTime, formatMoney, todayInputValue } from '../utils/format'
 
 export default function DailyCutoffPage() {
   const [date, setDate] = useState(todayInputValue())
+  const [closing, setClosing] = useState(false)
+  const [error, setError] = useState('')
+
   const cutoff = useLiveQuery(() => getDailyCutoff(date), [date])
+  const closedCutoff = useLiveQuery(() => getCashCutoffByDate(date), [date])
+
+  async function handleClose() {
+    setError('')
+    if (
+      !confirm(
+        '¿Cerrar el corte de este día? Quedará guardado como definitivo y no se podrá cerrar de nuevo.',
+      )
+    ) {
+      return
+    }
+    setClosing(true)
+    const result = await closeCashCutoff(date)
+    setClosing(false)
+    if (!result.ok) {
+      setError(result.error)
+    }
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 print:max-w-full">
@@ -33,7 +54,7 @@ export default function DailyCutoffPage() {
         </div>
       </div>
 
-      <div className="mb-6 print:hidden">
+      <div className="mb-6 flex flex-wrap items-center gap-3 print:hidden">
         <input
           type="date"
           value={date}
@@ -41,7 +62,22 @@ export default function DailyCutoffPage() {
           onChange={(e) => setDate(e.target.value)}
           className="rounded-lg border border-stone-300 px-3 py-2 text-sm"
         />
+
+        {closedCutoff ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+            🔒 Corte cerrado el {formatDateTime(closedCutoff.closedAt)}
+          </span>
+        ) : (
+          <button
+            onClick={handleClose}
+            disabled={closing || !cutoff || cutoff.count === 0}
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-40"
+          >
+            {closing ? 'Cerrando...' : '🔒 Cerrar corte'}
+          </button>
+        )}
       </div>
+      {error && <p className="mb-4 text-sm text-red-600 print:hidden">{error}</p>}
 
       {cutoff && (
         <>
@@ -65,6 +101,27 @@ export default function DailyCutoffPage() {
             <div className="rounded-xl border border-brand-700 bg-brand-600 p-4 text-center">
               <p className="text-xs text-brand-100">Total del día</p>
               <p className="mt-1 text-2xl font-bold text-white">{formatMoney(cutoff.total)}</p>
+            </div>
+          </div>
+
+          <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-stone-200 bg-white p-3 text-center">
+              <p className="text-xs text-stone-500">Costo de lo vendido</p>
+              <p className="mt-1 text-lg font-semibold text-stone-700">
+                {formatMoney(cutoff.totalCost)}
+              </p>
+            </div>
+            <div className="rounded-xl border border-stone-200 bg-white p-3 text-center">
+              <p className="text-xs text-stone-500">Descuentos por promoción</p>
+              <p className="mt-1 text-lg font-semibold text-stone-700">
+                {formatMoney(cutoff.totalDiscount)}
+              </p>
+            </div>
+            <div className="rounded-xl border border-green-600 bg-green-50 p-3 text-center">
+              <p className="text-xs text-green-700">Ganancia del día</p>
+              <p className="mt-1 text-lg font-bold text-green-700">
+                {formatMoney(cutoff.totalProfit)}
+              </p>
             </div>
           </div>
 

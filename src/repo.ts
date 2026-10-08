@@ -1,9 +1,12 @@
 import { db, todayRange } from './db'
 import type {
+  AppliedPromotion,
+  CashCutoff,
   Category,
   MovementType,
   PaymentMethod,
   Product,
+  Promotion,
   Sale,
   SaleItem,
   StockMovement,
@@ -142,12 +145,16 @@ export async function createSale(input: {
   paymentMethod: PaymentMethod
   cashAmount: number
   transferAmount: number
+  discount?: number
+  appliedPromotions?: AppliedPromotion[]
 }): Promise<{ ok: boolean; error?: string; saleId?: number }> {
   if (input.items.length === 0) {
     return { ok: false, error: 'El carrito está vacío' }
   }
 
-  const total = input.items.reduce((sum, it) => sum + it.price * it.quantity, 0)
+  const subtotal = input.items.reduce((sum, it) => sum + it.price * it.quantity, 0)
+  const discount = input.discount ?? 0
+  const total = Math.max(0, subtotal - discount)
 
   // Validar stock disponible
   for (const item of input.items) {
@@ -164,6 +171,8 @@ export async function createSale(input: {
       date: now,
       items: input.items,
       total,
+      discount,
+      appliedPromotions: input.appliedPromotions ?? [],
       paymentMethod: input.paymentMethod,
       cashAmount: input.cashAmount,
       transferAmount: input.transferAmount,
@@ -204,12 +213,223 @@ export async function getDailyCutoff(dateStr?: string) {
   const totalCash = sales.reduce((sum, s) => sum + s.cashAmount, 0)
   const totalTransfer = sales.reduce((sum, s) => sum + s.transferAmount, 0)
   const total = totalCash + totalTransfer
+  const totalCost = sales.reduce(
+    (sum, s) => sum + s.items.reduce((isum, it) => isum + (it.cost ?? 0) * it.quantity, 0),
+    0,
+  )
+  const totalDiscount = sales.reduce((sum, s) => sum + (s.discount ?? 0), 0)
+  const totalProfit = total - totalCost
   return {
     date: dateStr ?? new Date().toISOString(),
     sales,
     totalCash,
     totalTransfer,
     total,
+    totalCost,
+    totalDiscount,
+    totalProfit,
     count: sales.length,
+  }
+}
+
+// ---------- Corte de caja (cierre persistido) ----------
+
+export async function getCashCutoffByDate(dateStr: string): Promise<CashCutoff | undefined> {
+  return db.cashCutoffs.where('date').equals(dateStr).first()
+}
+
+export async function listCashCutoffs(): Promise<CashCutoff[]> {
+  return db.cashCutoffs.orderBy('date').reverse().toArray()
+}
+
+export async function closeCashCutoff(
+  dateStr: string,
+): Promise<{ ok: true; cutoff: CashCutoff } | { ok: false; error: string }> {
+  const existing = await getCashCutoffByDate(dateStr)
+  if (existing) {
+    return { ok: false, error: 'Este día ya tiene un corte cerrado.' }
+  }
+
+  const summary = await getDailyCutoff(dateStr)
+  if (summary.count === 0) {
+    return { ok: false, error: 'No hay ventas registradas en esta fecha para cerrar el corte.' }
+  }
+
+  const record: Omit<CashCutoff, 'id'> = {
+    date: dateStr,
+    closedAt: new Date().toISOString(),
+    totalCash: summary.totalCash,
+    totalTransfer: summary.totalTransfer,
+    total: summary.total,
+    totalCost: summary.totalCost,
+    totalProfit: summary.totalProfit,
+    salesCount: summary.count,
+  }
+
+  let id = 0
+  try {
+    id = (await db.cashCutoffs.add(record)) as number
+  } catch {
+    return { ok: false, error: 'Este día ya tiene un corte cerrado.' }
+  }
+  return { ok: true, cutoff: { ...record, id } }
+}
+
+// ---------- Promociones ----------
+
+export async function listPromotions(): Promise<Promotion[]> {
+  return db.promotions.orderBy('id').toArray()
+}
+
+export async function savePromotion(input: {
+  id?: number
+  name: string
+  productIds: number[]
+  bundleQuantity: number
+  bundlePrice: number
+  active: boolean
+}): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
+  const name = input.name.trim()
+  if (!name) return { ok: false, error: 'El nombre de la promoción es obligatorio' }
+  if (input.productIds.length === 0) {
+    return { ok: false, error: 'Selecciona al menos un producto para la promoción' }
+  }
+  if (!Number.isInteger(input.bundleQuantity) || input.bundleQuantity < 2) {
+    return { ok: false, error: 'La cantidad de la promoción debe ser un entero de al menos 2' }
+  }
+  if (!(input.bundlePrice >= 0)) {
+    return { ok: false, error: 'El precio de la promoción no es válido' }
+  }
+
+  const now = new Date().toISOString()
+  if (input.id) {
+    await db.promotions.update(input.id, {
+      name,
+      productIds: input.productIds,
+      bundleQuantity: input.bundleQuantity,
+      bundlePrice: input.bundlePrice,
+      active: input.active,
+      updatedAt: now,
+    })
+    return { ok: true, id: input.id }
+  }
+
+  const id = await db.promotions.add({
+    name,
+    productIds: input.productIds,
+    bundleQuantity: input.bundleQuantity,
+    bundlePrice: input.bundlePrice,
+    active: input.active,
+    createdAt: now,
+    updatedAt: now,
+  })
+  return { ok: true, id: id as number }
+}
+
+export async function deletePromotion(id: number): Promise<void> {
+  await db.promotions.delete(id)
+}
+
+// ---------- Ganancias ----------
+
+export interface ProductProfitSummary {
+  productId: number
+  name: string
+  barcode: string
+  cost: number
+  price: number
+  unitProfit: number
+  marginPct: number
+  stock: number
+  stockProfitPotential: number
+}
+
+export async function getCatalogProfitSummary(): Promise<ProductProfitSummary[]> {
+  const products = await db.products.toArray()
+  return products
+    .map((p) => {
+      const unitProfit = p.price - p.cost
+      const marginPct = p.price > 0 ? (unitProfit / p.price) * 100 : 0
+      return {
+        productId: p.id!,
+        name: p.name,
+        barcode: p.barcode,
+        cost: p.cost,
+        price: p.price,
+        unitProfit,
+        marginPct,
+        stock: p.stock,
+        stockProfitPotential: unitProfit * p.stock,
+      }
+    })
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+export interface SalesProfitRow {
+  productId: number
+  name: string
+  quantitySold: number
+  revenue: number
+  cost: number
+  profit: number
+}
+
+export interface SalesProfitReport {
+  from: string
+  to: string
+  rows: SalesProfitRow[]
+  totalRevenue: number
+  totalCost: number
+  totalDiscount: number
+  totalProfit: number
+  salesCount: number
+}
+
+export async function getSalesProfitReport(
+  fromDateStr: string,
+  toDateStr: string,
+): Promise<SalesProfitReport> {
+  const { start } = todayRange(fromDateStr)
+  const { end } = todayRange(toDateStr)
+  const sales = await db.sales.where('date').between(start, end, true, true).toArray()
+
+  const rowsMap = new Map<number, SalesProfitRow>()
+  let totalDiscount = 0
+
+  for (const sale of sales) {
+    totalDiscount += sale.discount ?? 0
+    for (const item of sale.items) {
+      const row = rowsMap.get(item.productId) ?? {
+        productId: item.productId,
+        name: item.name,
+        quantitySold: 0,
+        revenue: 0,
+        cost: 0,
+        profit: 0,
+      }
+      const revenue = item.price * item.quantity
+      const cost = (item.cost ?? 0) * item.quantity
+      row.quantitySold += item.quantity
+      row.revenue += revenue
+      row.cost += cost
+      row.profit += revenue - cost
+      rowsMap.set(item.productId, row)
+    }
+  }
+
+  const rows = Array.from(rowsMap.values()).sort((a, b) => b.profit - a.profit)
+  const totalRevenue = sales.reduce((sum, s) => sum + s.total, 0)
+  const totalCost = rows.reduce((sum, r) => sum + r.cost, 0)
+  const totalProfit = totalRevenue - totalCost
+
+  return {
+    from: fromDateStr,
+    to: toDateStr,
+    rows,
+    totalRevenue,
+    totalCost,
+    totalDiscount,
+    totalProfit,
+    salesCount: sales.length,
   }
 }

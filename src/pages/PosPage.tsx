@@ -2,8 +2,9 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo, useState } from 'react'
 import BarcodeField from '../components/BarcodeField'
 import { db } from '../db'
+import { computeCartPricing } from '../promotions'
 import { createSale, getProductByBarcode } from '../repo'
-import type { PaymentMethod, Product, SaleItem } from '../types'
+import type { AppliedPromotion, PaymentMethod, Product, SaleItem } from '../types'
 import { formatMoney } from '../utils/format'
 
 interface CartLine extends SaleItem {
@@ -13,6 +14,7 @@ interface CartLine extends SaleItem {
 export default function PosPage() {
   const categories = useLiveQuery(() => db.categories.orderBy('name').toArray(), [])
   const products = useLiveQuery(() => db.products.orderBy('name').toArray(), [])
+  const promotions = useLiveQuery(() => db.promotions.toArray(), [])
 
   const [barcode, setBarcode] = useState('')
   const [scanError, setScanError] = useState('')
@@ -20,10 +22,11 @@ export default function PosPage() {
   const [categoryFilter, setCategoryFilter] = useState('todas')
   const [checkoutOpen, setCheckoutOpen] = useState(false)
 
-  const total = useMemo(
-    () => cart.reduce((sum, line) => sum + line.price * line.quantity, 0),
-    [cart],
+  const pricing = useMemo(
+    () => computeCartPricing(cart, promotions ?? []),
+    [cart, promotions],
   )
+  const total = pricing.total
 
   const visibleProducts = useMemo(() => {
     return (products ?? []).filter(
@@ -55,6 +58,7 @@ export default function PosPage() {
           name: product.name,
           barcode: product.barcode,
           price: product.price,
+          cost: product.cost,
           quantity: 1,
           maxStock: product.stock,
         },
@@ -199,9 +203,30 @@ export default function PosPage() {
             )}
           </div>
 
-          <div className="mt-4 flex items-center justify-between border-t border-stone-200 pt-3">
-            <span className="text-base font-semibold text-stone-800">Total</span>
-            <span className="text-xl font-bold text-stone-900">{formatMoney(total)}</span>
+          <div className="mt-4 border-t border-stone-200 pt-3">
+            {pricing.discount > 0 && (
+              <>
+                <div className="flex items-center justify-between text-sm text-stone-500">
+                  <span>Subtotal</span>
+                  <span>{formatMoney(pricing.subtotal)}</span>
+                </div>
+                {pricing.applied.map((promo) => (
+                  <div
+                    key={promo.promotionId}
+                    className="flex items-center justify-between text-sm text-green-700"
+                  >
+                    <span>
+                      🏷️ {promo.name} ({promo.groups}×{promo.unitsUsed / promo.groups})
+                    </span>
+                    <span>-{formatMoney(promo.discount)}</span>
+                  </div>
+                ))}
+              </>
+            )}
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-base font-semibold text-stone-800">Total</span>
+              <span className="text-xl font-bold text-stone-900">{formatMoney(total)}</span>
+            </div>
           </div>
 
           <div className="mt-4 flex gap-2">
@@ -226,6 +251,8 @@ export default function PosPage() {
       {checkoutOpen && (
         <CheckoutModal
           total={total}
+          discount={pricing.discount}
+          appliedPromotions={pricing.applied}
           items={cart}
           onClose={() => setCheckoutOpen(false)}
           onComplete={() => {
@@ -240,11 +267,15 @@ export default function PosPage() {
 
 function CheckoutModal({
   total,
+  discount,
+  appliedPromotions,
   items,
   onClose,
   onComplete,
 }: {
   total: number
+  discount: number
+  appliedPromotions: AppliedPromotion[]
   items: SaleItem[]
   onClose: () => void
   onComplete: () => void
@@ -287,6 +318,8 @@ function CheckoutModal({
       paymentMethod: method,
       cashAmount,
       transferAmount,
+      discount,
+      appliedPromotions,
     })
     setSubmitting(false)
     if (!result.ok) {
