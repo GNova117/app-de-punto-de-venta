@@ -26,6 +26,34 @@ accesorios. Funciona en el navegador y guarda todos los datos localmente
   ventas sin respaldar.
 - **Acceso de administrador**: productos, categorías, entradas/salidas y respaldo están
   protegidos con contraseña. La caja (vender, historial y corte) se usa sin contraseña.
+- **Ticket de venta**: al cobrar se muestra el ticket (con el cambio si se pagó en
+  efectivo) para imprimirlo o enviarlo por WhatsApp; desde el Historial se puede volver a
+  ver cualquier ticket.
+- **Cancelar ventas**: desde el Historial, con contraseña de administrador; los productos
+  regresan al inventario y la devolución se resta del corte del día en que se cancela.
+
+## Ticket de venta
+
+- **Imprimir** usa el diálogo de impresión del sistema: funciona con impresoras normales
+  y con impresoras térmicas de 58 u 80 mm (en PC con su controlador, en Android con la
+  app de impresión de la impresora o un servicio como RawBT). El ticket se ajusta solo al
+  ancho del papel.
+- **WhatsApp** abre el chat con el ticket ya escrito. Si escribes el número del cliente a
+  10 dígitos, se abre su chat directamente (se agrega el +52); si lo dejas vacío, eliges
+  el contacto en WhatsApp.
+
+## Cancelar una venta
+
+1. En **Historial de ventas** abre la venta y toca **Cancelar venta**.
+2. Elige el motivo y escribe la contraseña de administrador (no la pide si la sesión de
+   administración está abierta).
+3. Los productos regresan al inventario (queda registrado en Entradas/Salidas) y la
+   venta queda marcada como **Cancelada**, con su motivo.
+
+El dinero devuelto se resta del **corte del día en que se cancela**, separado en efectivo
+y transferencia, y aparece en la tabla "Cancelaciones del día". Así, un corte que ya
+cerraste nunca cambia. Por lo mismo, una vez cerrado el corte de hoy ya no se pueden
+cancelar ventas hasta el día siguiente. Las ventas canceladas no cuentan en Ganancias.
 
 ## Administración y caja
 

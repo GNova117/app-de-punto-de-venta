@@ -63,6 +63,11 @@ export interface Sale {
   paymentMethod: PaymentMethod
   cashAmount: number
   transferAmount: number
+  /** Efectivo que entregó el cliente (solo pago en efectivo), para mostrar el cambio en el ticket. */
+  cashReceived?: number
+  /** Si se canceló: cuándo. La devolución cuenta en el corte de ese día, no en el de la venta. */
+  cancelledAt?: string
+  cancelReason?: string
 }
 
 // ---------- Promociones ----------

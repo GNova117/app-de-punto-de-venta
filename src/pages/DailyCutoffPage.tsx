@@ -125,9 +125,14 @@ export default function DailyCutoffPage() {
             </div>
           </div>
 
-          <p className="mb-3 text-sm text-stone-500">
-            {cutoff.count} transacción(es) registrada(s)
-          </p>
+          {cutoff.refundsCount > 0 && (
+            <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
+              Los totales ya descuentan {cutoff.refundsCount} cancelación(es) de hoy por{' '}
+              <strong>-{formatMoney(cutoff.refundsTotal)}</strong>.
+            </p>
+          )}
+
+          <p className="mb-3 text-sm text-stone-500">{cutoff.count} venta(s) registrada(s)</p>
 
           <div className="overflow-hidden rounded-xl border border-stone-200 bg-white">
             <table className="w-full text-left text-sm">
@@ -143,7 +148,14 @@ export default function DailyCutoffPage() {
                 {cutoff.sales.map((s) => (
                   <tr key={s.id} className="border-t border-stone-100">
                     <td className="px-4 py-2 text-stone-500">{formatDateTime(s.date)}</td>
-                    <td className="px-4 py-2 font-medium text-stone-800">#{s.id}</td>
+                    <td className="px-4 py-2 font-medium text-stone-800">
+                      #{s.id}
+                      {s.cancelledAt && (
+                        <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+                          Cancelada
+                        </span>
+                      )}
+                    </td>
                     <td className="px-4 py-2 capitalize text-stone-600">{s.paymentMethod}</td>
                     <td className="px-4 py-2 text-right font-medium text-stone-800">
                       {formatMoney(s.total)}
@@ -160,6 +172,43 @@ export default function DailyCutoffPage() {
               </tbody>
             </table>
           </div>
+
+          {cutoff.refunds.length > 0 && (
+            <>
+              <h2 className="mt-6 mb-3 text-sm font-semibold text-stone-700">
+                Cancelaciones del día
+              </h2>
+              <div className="overflow-hidden rounded-xl border border-red-200 bg-white">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-red-50 text-xs text-red-700">
+                    <tr>
+                      <th className="px-4 py-2">Cancelada</th>
+                      <th className="px-4 py-2">Venta</th>
+                      <th className="px-4 py-2">Método</th>
+                      <th className="px-4 py-2 text-right">Devuelto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cutoff.refunds.map((s) => (
+                      <tr key={s.id} className="border-t border-red-100">
+                        <td className="px-4 py-2 text-stone-500">{formatDateTime(s.cancelledAt!)}</td>
+                        <td className="px-4 py-2 text-stone-800">
+                          <span className="font-medium">#{s.id}</span>
+                          <span className="block text-xs text-stone-400">
+                            vendida {formatDateTime(s.date)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 capitalize text-stone-600">{s.paymentMethod}</td>
+                        <td className="px-4 py-2 text-right font-medium text-red-700">
+                          -{formatMoney(s.total)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

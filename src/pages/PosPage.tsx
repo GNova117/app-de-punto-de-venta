@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo, useState } from 'react'
 import BarcodeField from '../components/BarcodeField'
+import TicketDialog from '../components/TicketDialog'
 import { db } from '../db'
 import { computeCartPricing } from '../promotions'
 import { createSale, getProductByBarcode } from '../repo'
@@ -21,6 +22,8 @@ export default function PosPage() {
   const [cart, setCart] = useState<CartLine[]>([])
   const [categoryFilter, setCategoryFilter] = useState('todas')
   const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [ticketSaleId, setTicketSaleId] = useState<number | null>(null)
+  const [salesDone, setSalesDone] = useState(0)
 
   const pricing = useMemo(
     () => computeCartPricing(cart, promotions ?? []),
@@ -108,7 +111,14 @@ export default function PosPage() {
           Escanea el código de barras del producto o selecciónalo de la lista.
         </p>
 
-        <BarcodeField value={barcode} onChange={setBarcode} onSubmit={handleScan} autoFocus />
+        {/* La key cambia al cerrar el ticket para volver a enfocar el campo y seguir escaneando. */}
+        <BarcodeField
+          key={salesDone}
+          value={barcode}
+          onChange={setBarcode}
+          onSubmit={handleScan}
+          autoFocus
+        />
         {scanError && <p className="mt-2 text-sm text-red-600">{scanError}</p>}
 
         <div className="mt-4 mb-3 flex flex-wrap gap-2">
@@ -255,9 +265,22 @@ export default function PosPage() {
           appliedPromotions={pricing.applied}
           items={cart}
           onClose={() => setCheckoutOpen(false)}
-          onComplete={() => {
+          onComplete={(saleId) => {
             setCart([])
             setCheckoutOpen(false)
+            setTicketSaleId(saleId)
+          }}
+        />
+      )}
+
+      {ticketSaleId != null && (
+        <TicketDialog
+          saleId={ticketSaleId}
+          heading={`✅ Venta #${ticketSaleId} registrada`}
+          closeLabel="Nueva venta"
+          onClose={() => {
+            setTicketSaleId(null)
+            setSalesDone((n) => n + 1)
           }}
         />
       )}
@@ -278,7 +301,7 @@ function CheckoutModal({
   appliedPromotions: AppliedPromotion[]
   items: SaleItem[]
   onClose: () => void
-  onComplete: () => void
+  onComplete: (saleId: number) => void
 }) {
   const [method, setMethod] = useState<PaymentMethod>('efectivo')
   const [cashReceived, setCashReceived] = useState(String(total))
@@ -320,13 +343,14 @@ function CheckoutModal({
       transferAmount,
       discount,
       appliedPromotions,
+      cashReceived: method === 'efectivo' ? Number(cashReceived) : undefined,
     })
     setSubmitting(false)
     if (!result.ok) {
       setError(result.error ?? 'No se pudo registrar la venta.')
       return
     }
-    onComplete()
+    onComplete(result.saleId!)
   }
 
   return (

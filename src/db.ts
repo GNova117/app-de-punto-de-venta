@@ -38,6 +38,14 @@ class PosDatabase extends Dexie {
         cashCutoffs: '++id, &date',
       })
       .upgrade((tx) => recomputeCutoffs(tx.table('sales'), tx.table('cashCutoffs')))
+    this.version(4).stores({
+      categories: '++id, name',
+      products: '++id, barcode, categoryId, name',
+      stockMovements: '++id, productId, type, date',
+      sales: '++id, date, paymentMethod, cancelledAt',
+      promotions: '++id',
+      cashCutoffs: '++id, &date',
+    })
   }
 }
 

@@ -1,5 +1,6 @@
 import { summarizeSales } from './cutoffSummary'
 import { db, todayRange } from './db'
+import { todayInputValue } from './utils/format'
 import type {
   AppliedPromotion,
   CashCutoff,
@@ -148,6 +149,7 @@ export async function createSale(input: {
   transferAmount: number
   discount?: number
   appliedPromotions?: AppliedPromotion[]
+  cashReceived?: number
 }): Promise<{ ok: boolean; error?: string; saleId?: number }> {
   if (input.items.length === 0) {
     return { ok: false, error: 'El carrito está vacío' }
@@ -177,6 +179,7 @@ export async function createSale(input: {
       paymentMethod: input.paymentMethod,
       cashAmount: input.cashAmount,
       transferAmount: input.transferAmount,
+      cashReceived: input.cashReceived,
     })) as number
 
     for (const item of input.items) {
@@ -210,12 +213,60 @@ export async function listSalesByDate(dateStr?: string): Promise<Sale[]> {
 }
 
 export async function getDailyCutoff(dateStr?: string) {
-  const sales = await listSalesByDate(dateStr)
+  const { start, end } = todayRange(dateStr)
+  const [sales, refunds] = await Promise.all([
+    listSalesByDate(dateStr),
+    db.sales.where('cancelledAt').between(start, end, true, true).sortBy('cancelledAt'),
+  ])
   return {
     date: dateStr ?? new Date().toISOString(),
     sales,
-    ...summarizeSales(sales),
+    refunds,
+    ...summarizeSales(sales, refunds),
   }
+}
+
+export async function cancelSale(
+  saleId: number,
+  reason: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  // La devolución cuenta en el corte de hoy; si ya se cerró, el cierre guardado dejaría de cuadrar.
+  if (await getCashCutoffByDate(todayInputValue())) {
+    return {
+      ok: false,
+      error: 'El corte de hoy ya está cerrado. Las cancelaciones se podrán hacer a partir de mañana.',
+    }
+  }
+
+  try {
+    await db.transaction('rw', db.sales, db.products, db.stockMovements, async () => {
+      const sale = await db.sales.get(saleId)
+      if (!sale) throw new Error('La venta no existe.')
+      if (sale.cancelledAt) throw new Error('Esta venta ya estaba cancelada.')
+
+      const now = new Date().toISOString()
+      await db.sales.update(saleId, { cancelledAt: now, cancelReason: reason.trim() || undefined })
+      for (const item of sale.items) {
+        const product = await db.products.get(item.productId)
+        if (!product) continue
+        await db.products.update(item.productId, {
+          stock: product.stock + item.quantity,
+          updatedAt: now,
+        })
+        await db.stockMovements.add({
+          productId: item.productId,
+          type: 'entrada',
+          quantity: item.quantity,
+          reason: 'Cancelación de venta',
+          note: `Venta #${saleId}`,
+          date: now,
+        })
+      }
+    })
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'No se pudo cancelar la venta.' }
+  }
+  return { ok: true }
 }
 
 // ---------- Corte de caja (cierre persistido) ----------
@@ -377,7 +428,9 @@ export async function getSalesProfitReport(
 ): Promise<SalesProfitReport> {
   const { start } = todayRange(fromDateStr)
   const { end } = todayRange(toDateStr)
-  const sales = await db.sales.where('date').between(start, end, true, true).toArray()
+  const sales = (await db.sales.where('date').between(start, end, true, true).toArray()).filter(
+    (s) => !s.cancelledAt,
+  )
 
   const rowsMap = new Map<number, SalesProfitRow>()
   let totalDiscount = 0
