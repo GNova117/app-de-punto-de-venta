@@ -13,6 +13,8 @@ import CategoriesPage from './pages/CategoriesPage'
 import DailyCutoffPage from './pages/DailyCutoffPage'
 import PosPage from './pages/PosPage'
 import ProductsPage from './pages/ProductsPage'
+import ProfitPage from './pages/ProfitPage'
+import PromotionsPage from './pages/PromotionsPage'
 import SalesHistoryPage from './pages/SalesHistoryPage'
 import StockMovementsPage from './pages/StockMovementsPage'
 
@@ -45,6 +47,8 @@ function App() {
             <Route index element={<Navigate to="productos" replace />} />
             <Route path="productos" element={<ProductsPage />} />
             <Route path="categorias" element={<CategoriesPage />} />
+            <Route path="promociones" element={<PromotionsPage />} />
+            <Route path="ganancias" element={<ProfitPage />} />
             <Route path="movimientos" element={<StockMovementsPage />} />
             <Route path="respaldo" element={<BackupPage />} />
             <Route path="contrasena" element={<AdminPasswordPage />} />

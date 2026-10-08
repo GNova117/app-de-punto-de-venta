@@ -5,6 +5,8 @@ import AdminLogin from '../components/AdminLogin'
 const adminLinks = [
   { to: 'productos', label: 'Productos', icon: '📦' },
   { to: 'categorias', label: 'Categorías', icon: '🏷️' },
+  { to: 'promociones', label: 'Promociones', icon: '🎁' },
+  { to: 'ganancias', label: 'Ganancias', icon: '📈' },
   { to: 'movimientos', label: 'Entradas/Salidas', icon: '🔁' },
   { to: 'respaldo', label: 'Respaldo', icon: '💾' },
   { to: 'contrasena', label: 'Contraseña', icon: '🔑' },

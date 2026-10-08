@@ -78,6 +78,11 @@ export default function SalesHistoryPage() {
                     {formatMoney(s.transferAmount)}
                   </p>
                 )}
+                {s.discount > 0 && (
+                  <p className="mt-2 text-xs text-green-700">
+                    🏷️ Descuento por promoción: -{formatMoney(s.discount)}
+                  </p>
+                )}
               </div>
             )}
           </div>

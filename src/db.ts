@@ -1,11 +1,13 @@
 import Dexie, { type Table } from 'dexie'
-import type { Category, Product, Sale, StockMovement } from './types'
+import type { CashCutoff, Category, Product, Promotion, Sale, StockMovement } from './types'
 
 class PosDatabase extends Dexie {
   categories!: Table<Category, number>
   products!: Table<Product, number>
   stockMovements!: Table<StockMovement, number>
   sales!: Table<Sale, number>
+  promotions!: Table<Promotion, number>
+  cashCutoffs!: Table<CashCutoff, number>
 
   constructor() {
     super('pos-db')
@@ -14,6 +16,14 @@ class PosDatabase extends Dexie {
       products: '++id, barcode, categoryId, name',
       stockMovements: '++id, productId, type, date',
       sales: '++id, date, paymentMethod',
+    })
+    this.version(2).stores({
+      categories: '++id, name',
+      products: '++id, barcode, categoryId, name',
+      stockMovements: '++id, productId, type, date',
+      sales: '++id, date, paymentMethod',
+      promotions: '++id',
+      cashCutoffs: '++id, &date',
     })
   }
 }
