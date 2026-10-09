@@ -9,6 +9,7 @@ import type {
   PaymentMethod,
   Product,
   Promotion,
+  PromotionKind,
   Sale,
   SaleItem,
   StockMovement,
@@ -322,8 +323,10 @@ export async function savePromotion(input: {
   id?: number
   name: string
   productIds: number[]
-  bundleQuantity: number
-  bundlePrice: number
+  kind: PromotionKind
+  bundleQuantity?: number
+  bundlePrice?: number
+  secondUnitDiscountPercent?: number
   active: boolean
 }): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
   const name = input.name.trim()
@@ -331,20 +334,45 @@ export async function savePromotion(input: {
   if (input.productIds.length === 0) {
     return { ok: false, error: 'Selecciona al menos un producto para la promoción' }
   }
-  if (!Number.isInteger(input.bundleQuantity) || input.bundleQuantity < 2) {
-    return { ok: false, error: 'La cantidad de la promoción debe ser un entero de al menos 2' }
+
+  if (input.kind === 'secondUnitDiscount') {
+    if (
+      !Number.isFinite(input.secondUnitDiscountPercent) ||
+      input.secondUnitDiscountPercent! <= 0 ||
+      input.secondUnitDiscountPercent! > 100
+    ) {
+      return { ok: false, error: 'El descuento de la segunda unidad debe ser mayor a 0% y máximo 100%' }
+    }
+  } else {
+    if (!Number.isInteger(input.bundleQuantity) || input.bundleQuantity! < 2) {
+      return { ok: false, error: 'La cantidad de la promoción debe ser un entero de al menos 2' }
+    }
+    if (!(input.bundlePrice! >= 0)) {
+      return { ok: false, error: 'El precio de la promoción no es válido' }
+    }
   }
-  if (!(input.bundlePrice >= 0)) {
-    return { ok: false, error: 'El precio de la promoción no es válido' }
-  }
+
+  const fields =
+    input.kind === 'secondUnitDiscount'
+      ? {
+          kind: 'secondUnitDiscount' as const,
+          bundleQuantity: undefined,
+          bundlePrice: undefined,
+          secondUnitDiscountPercent: input.secondUnitDiscountPercent,
+        }
+      : {
+          kind: 'bundle' as const,
+          bundleQuantity: input.bundleQuantity,
+          bundlePrice: input.bundlePrice,
+          secondUnitDiscountPercent: undefined,
+        }
 
   const now = new Date().toISOString()
   if (input.id) {
     await db.promotions.update(input.id, {
       name,
       productIds: input.productIds,
-      bundleQuantity: input.bundleQuantity,
-      bundlePrice: input.bundlePrice,
+      ...fields,
       active: input.active,
       updatedAt: now,
     })
@@ -354,8 +382,7 @@ export async function savePromotion(input: {
   const id = await db.promotions.add({
     name,
     productIds: input.productIds,
-    bundleQuantity: input.bundleQuantity,
-    bundlePrice: input.bundlePrice,
+    ...fields,
     active: input.active,
     createdAt: now,
     updatedAt: now,
