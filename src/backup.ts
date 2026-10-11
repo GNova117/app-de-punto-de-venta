@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
-import { db } from './db'
-import type { CashCutoff, Category, Product, Promotion, Sale, StockMovement } from './types'
+import { db, recomputeCutoffs } from './db'
+import type { CashCutoff, Category, Product, Promotion, Sale, Setting, StockMovement } from './types'
 
 const APP_ID = 'punto-de-venta'
 const LAST_BACKUP_KEY = 'pos:lastBackupAt'
@@ -13,6 +13,7 @@ export interface BackupData {
   sales: Sale[]
   promotions: Promotion[]
   cashCutoffs: CashCutoff[]
+  settings: Setting[]
 }
 
 export interface BackupFile {
@@ -23,7 +24,7 @@ export interface BackupFile {
 }
 
 export async function createBackup(): Promise<BackupFile> {
-  const [categories, products, stockMovements, sales, promotions, cashCutoffs] =
+  const [categories, products, stockMovements, sales, promotions, cashCutoffs, settings] =
     await Promise.all([
       db.categories.toArray(),
       db.products.toArray(),
@@ -31,12 +32,13 @@ export async function createBackup(): Promise<BackupFile> {
       db.sales.toArray(),
       db.promotions.toArray(),
       db.cashCutoffs.toArray(),
+      db.settings.toArray(),
     ])
   return {
     app: APP_ID,
     schemaVersion: db.verno,
     exportedAt: new Date().toISOString(),
-    data: { categories, products, stockMovements, sales, promotions, cashCutoffs },
+    data: { categories, products, stockMovements, sales, promotions, cashCutoffs, settings },
   }
 }
 
@@ -94,7 +96,7 @@ export function parseBackup(text: string): ParseResult {
   }
 
   const { data } = parsed
-  // promotions y cashCutoffs son opcionales: un respaldo hecho antes de que
+  // promotions, cashCutoffs y settings son opcionales: un respaldo hecho antes de que
   // existieran esas funciones no las trae, y eso sigue siendo válido.
   const valid =
     everyHas(data.categories, ['id', 'name', 'color']) &&
@@ -102,7 +104,8 @@ export function parseBackup(text: string): ParseResult {
     everyHas(data.stockMovements, ['id', 'productId', 'type', 'quantity', 'date']) &&
     everyHas(data.sales, ['id', 'date', 'items', 'total', 'cashAmount', 'transferAmount']) &&
     (data.promotions === undefined || everyHas(data.promotions, ['id', 'name', 'productIds'])) &&
-    (data.cashCutoffs === undefined || everyHas(data.cashCutoffs, ['id', 'date', 'closedAt']))
+    (data.cashCutoffs === undefined || everyHas(data.cashCutoffs, ['id', 'date', 'closedAt'])) &&
+    (data.settings === undefined || everyHas(data.settings, ['key', 'value']))
   if (!valid) {
     return { ok: false, error: 'El archivo de respaldo está incompleto o dañado.' }
   }
@@ -111,10 +114,10 @@ export function parseBackup(text: string): ParseResult {
 }
 
 export async function restoreBackup(backup: BackupFile): Promise<void> {
-  const { categories, products, stockMovements, sales, promotions, cashCutoffs } = backup.data
+  const { categories, products, stockMovements, sales, promotions, cashCutoffs, settings } = backup.data
   await db.transaction(
     'rw',
-    [db.categories, db.products, db.stockMovements, db.sales, db.promotions, db.cashCutoffs],
+    [db.categories, db.products, db.stockMovements, db.sales, db.promotions, db.cashCutoffs, db.settings],
     async () => {
       await Promise.all([
         db.categories.clear(),
@@ -123,6 +126,7 @@ export async function restoreBackup(backup: BackupFile): Promise<void> {
         db.sales.clear(),
         db.promotions.clear(),
         db.cashCutoffs.clear(),
+        db.settings.clear(),
       ])
       await db.categories.bulkPut(categories)
       await db.products.bulkPut(products)
@@ -132,6 +136,8 @@ export async function restoreBackup(backup: BackupFile): Promise<void> {
       )
       await db.promotions.bulkPut(promotions ?? [])
       await db.cashCutoffs.bulkPut(cashCutoffs ?? [])
+      await db.settings.bulkPut(settings ?? [])
+      if (backup.schemaVersion < 3) await recomputeCutoffs(db.sales, db.cashCutoffs)
     },
   )
 }

@@ -1,4 +1,6 @@
+import { summarizeSales } from './cutoffSummary'
 import { db, todayRange } from './db'
+import { todayInputValue } from './utils/format'
 import type {
   AppliedPromotion,
   CashCutoff,
@@ -7,6 +9,7 @@ import type {
   PaymentMethod,
   Product,
   Promotion,
+  PromotionKind,
   Sale,
   SaleItem,
   StockMovement,
@@ -147,6 +150,7 @@ export async function createSale(input: {
   transferAmount: number
   discount?: number
   appliedPromotions?: AppliedPromotion[]
+  cashReceived?: number
 }): Promise<{ ok: boolean; error?: string; saleId?: number }> {
   if (input.items.length === 0) {
     return { ok: false, error: 'El carrito está vacío' }
@@ -176,6 +180,7 @@ export async function createSale(input: {
       paymentMethod: input.paymentMethod,
       cashAmount: input.cashAmount,
       transferAmount: input.transferAmount,
+      cashReceived: input.cashReceived,
     })) as number
 
     for (const item of input.items) {
@@ -209,27 +214,64 @@ export async function listSalesByDate(dateStr?: string): Promise<Sale[]> {
 }
 
 export async function getDailyCutoff(dateStr?: string) {
-  const sales = await listSalesByDate(dateStr)
-  const totalCash = sales.reduce((sum, s) => sum + s.cashAmount, 0)
-  const totalTransfer = sales.reduce((sum, s) => sum + s.transferAmount, 0)
-  const total = totalCash + totalTransfer
-  const totalCost = sales.reduce(
-    (sum, s) => sum + s.items.reduce((isum, it) => isum + (it.cost ?? 0) * it.quantity, 0),
-    0,
-  )
-  const totalDiscount = sales.reduce((sum, s) => sum + (s.discount ?? 0), 0)
-  const totalProfit = total - totalCost
+  const { start, end } = todayRange(dateStr)
+  const [sales, refunds, closedCutoff, liveCashFloat] = await Promise.all([
+    listSalesByDate(dateStr),
+    db.sales.where('cancelledAt').between(start, end, true, true).sortBy('cancelledAt'),
+    getCashCutoffByDate(dateStr ?? todayInputValue()),
+    getCashFloat(),
+  ])
   return {
     date: dateStr ?? new Date().toISOString(),
     sales,
-    totalCash,
-    totalTransfer,
-    total,
-    totalCost,
-    totalDiscount,
-    totalProfit,
-    count: sales.length,
+    refunds,
+    ...summarizeSales(sales, refunds),
+    // Un día ya cerrado conserva el fondo que tenía al cerrarse, aunque luego lo cambies.
+    cashFloat: closedCutoff ? (closedCutoff.cashFloat ?? 0) : liveCashFloat,
   }
+}
+
+export async function cancelSale(
+  saleId: number,
+  reason: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  // La devolución cuenta en el corte de hoy; si ya se cerró, el cierre guardado dejaría de cuadrar.
+  if (await getCashCutoffByDate(todayInputValue())) {
+    return {
+      ok: false,
+      error: 'El corte de hoy ya está cerrado. Las cancelaciones se podrán hacer a partir de mañana.',
+    }
+  }
+
+  try {
+    await db.transaction('rw', db.sales, db.products, db.stockMovements, async () => {
+      const sale = await db.sales.get(saleId)
+      if (!sale) throw new Error('La venta no existe.')
+      if (sale.cancelledAt) throw new Error('Esta venta ya estaba cancelada.')
+
+      const now = new Date().toISOString()
+      await db.sales.update(saleId, { cancelledAt: now, cancelReason: reason.trim() || undefined })
+      for (const item of sale.items) {
+        const product = await db.products.get(item.productId)
+        if (!product) continue
+        await db.products.update(item.productId, {
+          stock: product.stock + item.quantity,
+          updatedAt: now,
+        })
+        await db.stockMovements.add({
+          productId: item.productId,
+          type: 'entrada',
+          quantity: item.quantity,
+          reason: 'Cancelación de venta',
+          note: `Venta #${saleId}`,
+          date: now,
+        })
+      }
+    })
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'No se pudo cancelar la venta.' }
+  }
+  return { ok: true }
 }
 
 // ---------- Corte de caja (cierre persistido) ----------
@@ -264,6 +306,7 @@ export async function closeCashCutoff(
     totalCost: summary.totalCost,
     totalProfit: summary.totalProfit,
     salesCount: summary.count,
+    cashFloat: summary.cashFloat,
   }
 
   let id = 0
@@ -273,6 +316,20 @@ export async function closeCashCutoff(
     return { ok: false, error: 'Este día ya tiene un corte cerrado.' }
   }
   return { ok: true, cutoff: { ...record, id } }
+}
+
+// ---------- Fondo de caja ----------
+
+const CASH_FLOAT_KEY = 'cashFloat'
+
+/** Fondo de caja vigente (se mantiene igual día con día hasta que se cambie). */
+export async function getCashFloat(): Promise<number> {
+  const row = await db.settings.get(CASH_FLOAT_KEY)
+  return row ? Number(row.value) || 0 : 0
+}
+
+export async function setCashFloat(amount: number): Promise<void> {
+  await db.settings.put({ key: CASH_FLOAT_KEY, value: String(Math.max(0, amount)) })
 }
 
 // ---------- Promociones ----------
@@ -285,8 +342,10 @@ export async function savePromotion(input: {
   id?: number
   name: string
   productIds: number[]
-  bundleQuantity: number
-  bundlePrice: number
+  kind: PromotionKind
+  bundleQuantity?: number
+  bundlePrice?: number
+  secondUnitDiscountPercent?: number
   active: boolean
 }): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
   const name = input.name.trim()
@@ -294,20 +353,45 @@ export async function savePromotion(input: {
   if (input.productIds.length === 0) {
     return { ok: false, error: 'Selecciona al menos un producto para la promoción' }
   }
-  if (!Number.isInteger(input.bundleQuantity) || input.bundleQuantity < 2) {
-    return { ok: false, error: 'La cantidad de la promoción debe ser un entero de al menos 2' }
+
+  if (input.kind === 'secondUnitDiscount') {
+    if (
+      !Number.isFinite(input.secondUnitDiscountPercent) ||
+      input.secondUnitDiscountPercent! <= 0 ||
+      input.secondUnitDiscountPercent! > 100
+    ) {
+      return { ok: false, error: 'El descuento de la segunda unidad debe ser mayor a 0% y máximo 100%' }
+    }
+  } else {
+    if (!Number.isInteger(input.bundleQuantity) || input.bundleQuantity! < 2) {
+      return { ok: false, error: 'La cantidad de la promoción debe ser un entero de al menos 2' }
+    }
+    if (!(input.bundlePrice! >= 0)) {
+      return { ok: false, error: 'El precio de la promoción no es válido' }
+    }
   }
-  if (!(input.bundlePrice >= 0)) {
-    return { ok: false, error: 'El precio de la promoción no es válido' }
-  }
+
+  const fields =
+    input.kind === 'secondUnitDiscount'
+      ? {
+          kind: 'secondUnitDiscount' as const,
+          bundleQuantity: undefined,
+          bundlePrice: undefined,
+          secondUnitDiscountPercent: input.secondUnitDiscountPercent,
+        }
+      : {
+          kind: 'bundle' as const,
+          bundleQuantity: input.bundleQuantity,
+          bundlePrice: input.bundlePrice,
+          secondUnitDiscountPercent: undefined,
+        }
 
   const now = new Date().toISOString()
   if (input.id) {
     await db.promotions.update(input.id, {
       name,
       productIds: input.productIds,
-      bundleQuantity: input.bundleQuantity,
-      bundlePrice: input.bundlePrice,
+      ...fields,
       active: input.active,
       updatedAt: now,
     })
@@ -317,8 +401,7 @@ export async function savePromotion(input: {
   const id = await db.promotions.add({
     name,
     productIds: input.productIds,
-    bundleQuantity: input.bundleQuantity,
-    bundlePrice: input.bundlePrice,
+    ...fields,
     active: input.active,
     createdAt: now,
     updatedAt: now,
@@ -391,7 +474,9 @@ export async function getSalesProfitReport(
 ): Promise<SalesProfitReport> {
   const { start } = todayRange(fromDateStr)
   const { end } = todayRange(toDateStr)
-  const sales = await db.sales.where('date').between(start, end, true, true).toArray()
+  const sales = (await db.sales.where('date').between(start, end, true, true).toArray()).filter(
+    (s) => !s.cancelledAt,
+  )
 
   const rowsMap = new Map<number, SalesProfitRow>()
   let totalDiscount = 0

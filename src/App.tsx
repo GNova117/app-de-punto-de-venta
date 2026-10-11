@@ -9,6 +9,7 @@ import { seedDatabase } from './db'
 import AdminLayout from './pages/AdminLayout'
 import AdminPasswordPage from './pages/AdminPasswordPage'
 import BackupPage from './pages/BackupPage'
+import CashFloatPage from './pages/CashFloatPage'
 import CategoriesPage from './pages/CategoriesPage'
 import DailyCutoffPage from './pages/DailyCutoffPage'
 import PosPage from './pages/PosPage'
@@ -50,6 +51,7 @@ function App() {
             <Route path="promociones" element={<PromotionsPage />} />
             <Route path="ganancias" element={<ProfitPage />} />
             <Route path="movimientos" element={<StockMovementsPage />} />
+            <Route path="fondo" element={<CashFloatPage />} />
             <Route path="respaldo" element={<BackupPage />} />
             <Route path="contrasena" element={<AdminPasswordPage />} />
           </Route>

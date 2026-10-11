@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { downloadBackup } from '../backup'
 import { closeCashCutoff, getCashCutoffByDate, getDailyCutoff } from '../repo'
 import { formatDate, formatDateTime, formatMoney, todayInputValue } from '../utils/format'
@@ -85,6 +86,30 @@ export default function DailyCutoffPage() {
             {formatDate(cutoff.date)}
           </p>
 
+          <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium text-amber-700">🪙 Fondo de caja</p>
+                <p className="mt-1 text-xl font-bold text-amber-800">
+                  {formatMoney(cutoff.cashFloat)}
+                </p>
+              </div>
+              {!closedCutoff && (
+                <Link
+                  to="/admin/fondo"
+                  className="rounded-lg border border-amber-300 bg-white px-3 py-1 text-xs font-medium text-amber-700 hover:bg-amber-100 print:hidden"
+                >
+                  Cambiar en Administración
+                </Link>
+              )}
+            </div>
+            <p className="mt-2 text-xs text-amber-700">
+              Efectivo que se queda en caja para el día siguiente (no es parte de las ventas). Se
+              mantiene igual cada día hasta que lo cambien en Administración, y al cerrar el corte
+              queda fijo.
+            </p>
+          </div>
+
           <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-stone-200 bg-white p-4 text-center">
               <p className="text-xs text-stone-500">💵 Efectivo</p>
@@ -125,9 +150,14 @@ export default function DailyCutoffPage() {
             </div>
           </div>
 
-          <p className="mb-3 text-sm text-stone-500">
-            {cutoff.count} transacción(es) registrada(s)
-          </p>
+          {cutoff.refundsCount > 0 && (
+            <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
+              Los totales ya descuentan {cutoff.refundsCount} cancelación(es) de hoy por{' '}
+              <strong>-{formatMoney(cutoff.refundsTotal)}</strong>.
+            </p>
+          )}
+
+          <p className="mb-3 text-sm text-stone-500">{cutoff.count} venta(s) registrada(s)</p>
 
           <div className="overflow-hidden rounded-xl border border-stone-200 bg-white">
             <table className="w-full text-left text-sm">
@@ -143,7 +173,14 @@ export default function DailyCutoffPage() {
                 {cutoff.sales.map((s) => (
                   <tr key={s.id} className="border-t border-stone-100">
                     <td className="px-4 py-2 text-stone-500">{formatDateTime(s.date)}</td>
-                    <td className="px-4 py-2 font-medium text-stone-800">#{s.id}</td>
+                    <td className="px-4 py-2 font-medium text-stone-800">
+                      #{s.id}
+                      {s.cancelledAt && (
+                        <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+                          Cancelada
+                        </span>
+                      )}
+                    </td>
                     <td className="px-4 py-2 capitalize text-stone-600">{s.paymentMethod}</td>
                     <td className="px-4 py-2 text-right font-medium text-stone-800">
                       {formatMoney(s.total)}
@@ -160,6 +197,43 @@ export default function DailyCutoffPage() {
               </tbody>
             </table>
           </div>
+
+          {cutoff.refunds.length > 0 && (
+            <>
+              <h2 className="mt-6 mb-3 text-sm font-semibold text-stone-700">
+                Cancelaciones del día
+              </h2>
+              <div className="overflow-hidden rounded-xl border border-red-200 bg-white">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-red-50 text-xs text-red-700">
+                    <tr>
+                      <th className="px-4 py-2">Cancelada</th>
+                      <th className="px-4 py-2">Venta</th>
+                      <th className="px-4 py-2">Método</th>
+                      <th className="px-4 py-2 text-right">Devuelto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cutoff.refunds.map((s) => (
+                      <tr key={s.id} className="border-t border-red-100">
+                        <td className="px-4 py-2 text-stone-500">{formatDateTime(s.cancelledAt!)}</td>
+                        <td className="px-4 py-2 text-stone-800">
+                          <span className="font-medium">#{s.id}</span>
+                          <span className="block text-xs text-stone-400">
+                            vendida {formatDateTime(s.date)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 capitalize text-stone-600">{s.paymentMethod}</td>
+                        <td className="px-4 py-2 text-right font-medium text-red-700">
+                          -{formatMoney(s.total)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

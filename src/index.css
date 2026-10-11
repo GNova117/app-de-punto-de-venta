@@ -39,3 +39,27 @@ body {
 input[type='number']::-webkit-inner-spin-button {
   opacity: 1;
 }
+
+/* Ticket: solo existe para imprimirse; al imprimir se oculta toda la app. */
+#ticket-print-root {
+  display: none;
+}
+
+@page ticket {
+  margin: 3mm;
+}
+
+@media print {
+  body.printing-ticket {
+    background: #fff;
+  }
+
+  body.printing-ticket > :not(#ticket-print-root) {
+    display: none !important;
+  }
+
+  body.printing-ticket #ticket-print-root {
+    display: block;
+    page: ticket;
+  }
+}

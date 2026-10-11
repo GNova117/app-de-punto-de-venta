@@ -8,6 +8,7 @@ const adminLinks = [
   { to: 'promociones', label: 'Promociones', icon: '🎁' },
   { to: 'ganancias', label: 'Ganancias', icon: '📈' },
   { to: 'movimientos', label: 'Entradas/Salidas', icon: '🔁' },
+  { to: 'fondo', label: 'Fondo de caja', icon: '🪙' },
   { to: 'respaldo', label: 'Respaldo', icon: '💾' },
   { to: 'contrasena', label: 'Contraseña', icon: '🔑' },
 ]

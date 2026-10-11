@@ -2,12 +2,15 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo, useState } from 'react'
 import { db } from '../db'
 import { deletePromotion, savePromotion } from '../repo'
+import type { PromotionKind } from '../types'
 import { formatMoney } from '../utils/format'
 
 const emptyForm = {
   name: '',
+  kind: 'bundle' as PromotionKind,
   bundleQuantity: '2',
   bundlePrice: '',
+  secondUnitDiscountPercent: '50',
   active: true,
   productIds: [] as number[],
 }
@@ -54,8 +57,10 @@ export default function PromotionsPage() {
       id: editingId ?? undefined,
       name: form.name,
       productIds: form.productIds,
+      kind: form.kind,
       bundleQuantity: Number(form.bundleQuantity),
       bundlePrice: Number(form.bundlePrice),
+      secondUnitDiscountPercent: Number(form.secondUnitDiscountPercent),
       active: form.active,
     })
     if (!result.ok) {
@@ -74,8 +79,9 @@ export default function PromotionsPage() {
     <div className="mx-auto max-w-4xl px-4 py-6">
       <h1 className="mb-1 text-2xl font-bold text-stone-800">Promociones</h1>
       <p className="mb-6 text-sm text-stone-500">
-        Crea promociones de "lleva N y paga P". Por ejemplo: lleva 2 pares de calcetines y paga
-        $150 en vez del precio normal. Marca qué productos entran en cada promoción.
+        Crea promociones de "lleva N y paga P" o de "2da unidad con descuento". Marca qué
+        productos entran en cada promoción (por ejemplo, solo una marca de calcetines); los
+        demás productos conservan su precio normal.
       </p>
 
       <form
@@ -94,33 +100,100 @@ export default function PromotionsPage() {
           />
         </div>
 
-        <div>
+        <div className="sm:col-span-2">
           <label className="mb-1 block text-xs font-medium text-stone-600">
-            Lleva esta cantidad
+            Tipo de promoción
           </label>
-          <input
-            type="number"
-            min={2}
-            step={1}
-            value={form.bundleQuantity}
-            onChange={(e) => setForm((f) => ({ ...f, bundleQuantity: e.target.value }))}
-            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
-          />
+          <div className="flex gap-4 text-sm text-stone-700">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="kind"
+                checked={form.kind === 'bundle'}
+                onChange={() => setForm((f) => ({ ...f, kind: 'bundle' }))}
+              />
+              Lleva N y paga P
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="kind"
+                checked={form.kind === 'secondUnitDiscount'}
+                onChange={() => setForm((f) => ({ ...f, kind: 'secondUnitDiscount' }))}
+              />
+              2da unidad con descuento
+            </label>
+          </div>
         </div>
 
-        <div>
-          <label className="mb-1 block text-xs font-medium text-stone-600">
-            Paga en total
-          </label>
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            value={form.bundlePrice}
-            onChange={(e) => setForm((f) => ({ ...f, bundlePrice: e.target.value }))}
-            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
-          />
-        </div>
+        {form.kind === 'bundle' ? (
+          <>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-stone-600">
+                Lleva esta cantidad
+              </label>
+              <input
+                type="number"
+                min={2}
+                step={1}
+                value={form.bundleQuantity}
+                onChange={(e) => setForm((f) => ({ ...f, bundleQuantity: e.target.value }))}
+                className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-medium text-stone-600">
+                Paga en total
+              </label>
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.bundlePrice}
+                onChange={(e) => setForm((f) => ({ ...f, bundlePrice: e.target.value }))}
+                className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+              />
+            </div>
+          </>
+        ) : (
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-xs font-medium text-stone-600">
+              Descuento en la 2da unidad (%, 100 = gratis)
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min={1}
+                max={100}
+                step={1}
+                value={form.secondUnitDiscountPercent}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, secondUnitDiscountPercent: e.target.value }))
+                }
+                className="w-32 rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, secondUnitDiscountPercent: '50' }))}
+                className="rounded-lg border border-stone-300 px-3 py-1.5 text-xs text-stone-600 hover:bg-stone-50"
+              >
+                Mitad de precio
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, secondUnitDiscountPercent: '100' }))}
+                className="rounded-lg border border-stone-300 px-3 py-1.5 text-xs text-stone-600 hover:bg-stone-50"
+              >
+                Gratis
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-stone-400">
+              Por cada 2 unidades elegibles en el carrito, la más barata de las dos recibe este
+              descuento.
+            </p>
+          </div>
+        )}
 
         <div className="sm:col-span-2">
           <label className="mb-1 flex items-center gap-2 text-xs font-medium text-stone-600">
@@ -203,7 +276,11 @@ export default function PromotionsPage() {
                 </span>
               </div>
               <p className="text-sm text-stone-600">
-                Lleva {promo.bundleQuantity}, paga {formatMoney(promo.bundlePrice)}
+                {promo.kind === 'secondUnitDiscount'
+                  ? promo.secondUnitDiscountPercent === 100
+                    ? '2da unidad gratis'
+                    : `2da unidad con ${promo.secondUnitDiscountPercent}% de descuento`
+                  : `Lleva ${promo.bundleQuantity}, paga ${formatMoney(promo.bundlePrice!)}`}
               </p>
               <p className="mt-1 text-xs text-stone-400">
                 {promo.productIds.map((id) => productById.get(id) ?? '—').join(', ')}
@@ -215,8 +292,10 @@ export default function PromotionsPage() {
                   setEditingId(promo.id!)
                   setForm({
                     name: promo.name,
-                    bundleQuantity: String(promo.bundleQuantity),
-                    bundlePrice: String(promo.bundlePrice),
+                    kind: promo.kind ?? 'bundle',
+                    bundleQuantity: String(promo.bundleQuantity ?? 2),
+                    bundlePrice: String(promo.bundlePrice ?? ''),
+                    secondUnitDiscountPercent: String(promo.secondUnitDiscountPercent ?? 50),
                     active: promo.active,
                     productIds: promo.productIds,
                   })

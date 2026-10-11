@@ -63,21 +63,38 @@ export interface Sale {
   paymentMethod: PaymentMethod
   cashAmount: number
   transferAmount: number
+  /** Efectivo que entregó el cliente (solo pago en efectivo), para mostrar el cambio en el ticket. */
+  cashReceived?: number
+  /** Si se canceló: cuándo. La devolución cuenta en el corte de ese día, no en el de la venta. */
+  cancelledAt?: string
+  cancelReason?: string
 }
 
 // ---------- Promociones ----------
 
 /**
- * Promoción de "lleva N y paga P": si en el carrito hay al menos `bundleQuantity`
- * unidades de productos marcados en `productIds` (mezclando productos distintos),
- * ese grupo se cobra en `bundlePrice` en lugar de la suma de precios normales.
+ * 'bundle': "lleva N y paga P" (ver `bundleQuantity`/`bundlePrice`).
+ * 'secondUnitDiscount': por cada 2 unidades elegibles, la más barata de cada
+ * par se cobra con `secondUnitDiscountPercent`% de descuento (100% = gratis).
+ */
+export type PromotionKind = 'bundle' | 'secondUnitDiscount'
+
+/**
+ * Promoción de descuento. `productIds` define qué productos entran: solo esos
+ * productos (p. ej. una marca específica) se ven afectados, el resto conserva
+ * su precio normal aunque sean del mismo tipo de artículo.
  */
 export interface Promotion {
   id?: number
   name: string
   productIds: number[]
-  bundleQuantity: number
-  bundlePrice: number
+  /** Si falta (promociones guardadas antes de este campo), se trata como 'bundle'. */
+  kind?: PromotionKind
+  /** Solo para kind 'bundle'. */
+  bundleQuantity?: number
+  bundlePrice?: number
+  /** Solo para kind 'secondUnitDiscount'. De 1 a 100. */
+  secondUnitDiscountPercent?: number
   active: boolean
   createdAt: string
   updatedAt: string
@@ -96,4 +113,13 @@ export interface CashCutoff {
   totalCost: number
   totalProfit: number
   salesCount: number
+  /** Fondo de caja vigente al momento de cerrar este corte (no se recalcula después). */
+  cashFloat?: number
+}
+
+// ---------- Configuración ----------
+
+export interface Setting {
+  key: string
+  value: string
 }
