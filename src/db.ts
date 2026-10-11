@@ -1,6 +1,6 @@
 import Dexie, { type Table } from 'dexie'
 import { summarizeSales } from './cutoffSummary'
-import type { CashCutoff, Category, Product, Promotion, Sale, StockMovement } from './types'
+import type { CashCutoff, Category, Product, Promotion, Sale, Setting, StockMovement } from './types'
 import { parseLocalDate } from './utils/format'
 
 class PosDatabase extends Dexie {
@@ -10,6 +10,7 @@ class PosDatabase extends Dexie {
   sales!: Table<Sale, number>
   promotions!: Table<Promotion, number>
   cashCutoffs!: Table<CashCutoff, number>
+  settings!: Table<Setting, string>
 
   constructor() {
     super('pos-db')
@@ -45,6 +46,15 @@ class PosDatabase extends Dexie {
       sales: '++id, date, paymentMethod, cancelledAt',
       promotions: '++id',
       cashCutoffs: '++id, &date',
+    })
+    this.version(5).stores({
+      categories: '++id, name',
+      products: '++id, barcode, categoryId, name',
+      stockMovements: '++id, productId, type, date',
+      sales: '++id, date, paymentMethod, cancelledAt',
+      promotions: '++id',
+      cashCutoffs: '++id, &date',
+      settings: '&key',
     })
   }
 }

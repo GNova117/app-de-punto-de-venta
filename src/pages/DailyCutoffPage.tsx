@@ -1,16 +1,25 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { downloadBackup } from '../backup'
-import { closeCashCutoff, getCashCutoffByDate, getDailyCutoff } from '../repo'
+import { closeCashCutoff, getCashCutoffByDate, getDailyCutoff, setCashFloat } from '../repo'
 import { formatDate, formatDateTime, formatMoney, todayInputValue } from '../utils/format'
 
 export default function DailyCutoffPage() {
   const [date, setDate] = useState(todayInputValue())
   const [closing, setClosing] = useState(false)
   const [error, setError] = useState('')
+  const [editingFloat, setEditingFloat] = useState(false)
+  const [floatInput, setFloatInput] = useState('')
 
   const cutoff = useLiveQuery(() => getDailyCutoff(date), [date])
   const closedCutoff = useLiveQuery(() => getCashCutoffByDate(date), [date])
+
+  async function handleSaveFloat() {
+    const amount = Number(floatInput)
+    if (Number.isNaN(amount) || amount < 0) return
+    await setCashFloat(amount)
+    setEditingFloat(false)
+  }
 
   async function handleClose() {
     setError('')
@@ -85,6 +94,58 @@ export default function DailyCutoffPage() {
             {formatDate(cutoff.date)}
           </p>
 
+          <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium text-amber-700">🪙 Fondo de caja</p>
+                {editingFloat ? (
+                  <div className="mt-1 flex flex-wrap items-center gap-2 print:hidden">
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      autoFocus
+                      value={floatInput}
+                      onChange={(e) => setFloatInput(e.target.value)}
+                      className="w-32 rounded-lg border border-amber-300 px-2 py-1 text-sm focus:border-amber-500 focus:outline-none"
+                    />
+                    <button
+                      onClick={handleSaveFloat}
+                      className="rounded-lg bg-amber-600 px-3 py-1 text-xs font-medium text-white hover:bg-amber-700"
+                    >
+                      Guardar
+                    </button>
+                    <button
+                      onClick={() => setEditingFloat(false)}
+                      className="rounded-lg border border-amber-300 px-3 py-1 text-xs text-amber-700 hover:bg-amber-100"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                ) : (
+                  <p className="mt-1 text-xl font-bold text-amber-800">
+                    {formatMoney(cutoff.cashFloat)}
+                  </p>
+                )}
+              </div>
+              {!editingFloat && !closedCutoff && (
+                <button
+                  onClick={() => {
+                    setFloatInput(String(cutoff.cashFloat))
+                    setEditingFloat(true)
+                  }}
+                  className="rounded-lg border border-amber-300 bg-white px-3 py-1 text-xs font-medium text-amber-700 hover:bg-amber-100 print:hidden"
+                >
+                  Editar
+                </button>
+              )}
+            </div>
+            <p className="mt-2 text-xs text-amber-700">
+              Efectivo que se queda en caja para el día siguiente (no es parte de las ventas). Se
+              mantiene igual cada día hasta que lo cambies, y al cerrar el corte queda fijo.
+            </p>
+          </div>
+
           <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-stone-200 bg-white p-4 text-center">
               <p className="text-xs text-stone-500">💵 Efectivo</p>
@@ -110,37 +171,6 @@ export default function DailyCutoffPage() {
               <p className="mt-1 text-lg font-semibold text-stone-700">
                 {formatMoney(cutoff.totalCost)}
               </p>
-              {cutoff.costBreakdown.length > 0 && (
-                <details className="mt-2 text-left">
-                  <summary className="cursor-pointer text-xs text-brand-700 hover:underline print:hidden">
-                    Ver desglose por producto
-                  </summary>
-                  <table className="mt-2 w-full text-left text-xs">
-                    <thead className="text-stone-400">
-                      <tr>
-                        <th className="py-1">Producto</th>
-                        <th className="py-1 text-right">Cant.</th>
-                        <th className="py-1 text-right">C. unit.</th>
-                        <th className="py-1 text-right">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cutoff.costBreakdown.map((r) => (
-                        <tr key={r.productId} className="border-t border-stone-100">
-                          <td className="py-1 pr-2 text-stone-700">{r.name}</td>
-                          <td className="py-1 text-right text-stone-600">{r.quantity}</td>
-                          <td className="py-1 text-right text-stone-600">
-                            {formatMoney(r.unitCost)}
-                          </td>
-                          <td className="py-1 text-right font-medium text-stone-800">
-                            {formatMoney(r.totalCost)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </details>
-              )}
             </div>
             <div className="rounded-xl border border-stone-200 bg-white p-3 text-center">
               <p className="text-xs text-stone-500">Descuentos por promoción</p>

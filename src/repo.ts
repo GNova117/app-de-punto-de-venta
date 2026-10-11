@@ -215,15 +215,19 @@ export async function listSalesByDate(dateStr?: string): Promise<Sale[]> {
 
 export async function getDailyCutoff(dateStr?: string) {
   const { start, end } = todayRange(dateStr)
-  const [sales, refunds] = await Promise.all([
+  const [sales, refunds, closedCutoff, liveCashFloat] = await Promise.all([
     listSalesByDate(dateStr),
     db.sales.where('cancelledAt').between(start, end, true, true).sortBy('cancelledAt'),
+    getCashCutoffByDate(dateStr ?? todayInputValue()),
+    getCashFloat(),
   ])
   return {
     date: dateStr ?? new Date().toISOString(),
     sales,
     refunds,
     ...summarizeSales(sales, refunds),
+    // Un día ya cerrado conserva el fondo que tenía al cerrarse, aunque luego lo cambies.
+    cashFloat: closedCutoff ? (closedCutoff.cashFloat ?? 0) : liveCashFloat,
   }
 }
 
@@ -302,6 +306,7 @@ export async function closeCashCutoff(
     totalCost: summary.totalCost,
     totalProfit: summary.totalProfit,
     salesCount: summary.count,
+    cashFloat: summary.cashFloat,
   }
 
   let id = 0
@@ -311,6 +316,20 @@ export async function closeCashCutoff(
     return { ok: false, error: 'Este día ya tiene un corte cerrado.' }
   }
   return { ok: true, cutoff: { ...record, id } }
+}
+
+// ---------- Fondo de caja ----------
+
+const CASH_FLOAT_KEY = 'cashFloat'
+
+/** Fondo de caja vigente (se mantiene igual día con día hasta que se cambie). */
+export async function getCashFloat(): Promise<number> {
+  const row = await db.settings.get(CASH_FLOAT_KEY)
+  return row ? Number(row.value) || 0 : 0
+}
+
+export async function setCashFloat(amount: number): Promise<void> {
+  await db.settings.put({ key: CASH_FLOAT_KEY, value: String(Math.max(0, amount)) })
 }
 
 // ---------- Promociones ----------

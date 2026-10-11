@@ -113,4 +113,13 @@ export interface CashCutoff {
   totalCost: number
   totalProfit: number
   salesCount: number
+  /** Fondo de caja vigente al momento de cerrar este corte (no se recalcula después). */
+  cashFloat?: number
+}
+
+// ---------- Configuración ----------
+
+export interface Setting {
+  key: string
+  value: string
 }
