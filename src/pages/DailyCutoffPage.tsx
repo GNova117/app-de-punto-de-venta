@@ -110,6 +110,37 @@ export default function DailyCutoffPage() {
               <p className="mt-1 text-lg font-semibold text-stone-700">
                 {formatMoney(cutoff.totalCost)}
               </p>
+              {cutoff.costBreakdown.length > 0 && (
+                <details className="mt-2 text-left">
+                  <summary className="cursor-pointer text-xs text-brand-700 hover:underline print:hidden">
+                    Ver desglose por producto
+                  </summary>
+                  <table className="mt-2 w-full text-left text-xs">
+                    <thead className="text-stone-400">
+                      <tr>
+                        <th className="py-1">Producto</th>
+                        <th className="py-1 text-right">Cant.</th>
+                        <th className="py-1 text-right">C. unit.</th>
+                        <th className="py-1 text-right">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cutoff.costBreakdown.map((r) => (
+                        <tr key={r.productId} className="border-t border-stone-100">
+                          <td className="py-1 pr-2 text-stone-700">{r.name}</td>
+                          <td className="py-1 text-right text-stone-600">{r.quantity}</td>
+                          <td className="py-1 text-right text-stone-600">
+                            {formatMoney(r.unitCost)}
+                          </td>
+                          <td className="py-1 text-right font-medium text-stone-800">
+                            {formatMoney(r.totalCost)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </details>
+              )}
             </div>
             <div className="rounded-xl border border-stone-200 bg-white p-3 text-center">
               <p className="text-xs text-stone-500">Descuentos por promoción</p>
