@@ -1,25 +1,17 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { downloadBackup } from '../backup'
-import { closeCashCutoff, getCashCutoffByDate, getDailyCutoff, setCashFloat } from '../repo'
+import { closeCashCutoff, getCashCutoffByDate, getDailyCutoff } from '../repo'
 import { formatDate, formatDateTime, formatMoney, todayInputValue } from '../utils/format'
 
 export default function DailyCutoffPage() {
   const [date, setDate] = useState(todayInputValue())
   const [closing, setClosing] = useState(false)
   const [error, setError] = useState('')
-  const [editingFloat, setEditingFloat] = useState(false)
-  const [floatInput, setFloatInput] = useState('')
 
   const cutoff = useLiveQuery(() => getDailyCutoff(date), [date])
   const closedCutoff = useLiveQuery(() => getCashCutoffByDate(date), [date])
-
-  async function handleSaveFloat() {
-    const amount = Number(floatInput)
-    if (Number.isNaN(amount) || amount < 0) return
-    await setCashFloat(amount)
-    setEditingFloat(false)
-  }
 
   async function handleClose() {
     setError('')
@@ -98,51 +90,23 @@ export default function DailyCutoffPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-medium text-amber-700">🪙 Fondo de caja</p>
-                {editingFloat ? (
-                  <div className="mt-1 flex flex-wrap items-center gap-2 print:hidden">
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      autoFocus
-                      value={floatInput}
-                      onChange={(e) => setFloatInput(e.target.value)}
-                      className="w-32 rounded-lg border border-amber-300 px-2 py-1 text-sm focus:border-amber-500 focus:outline-none"
-                    />
-                    <button
-                      onClick={handleSaveFloat}
-                      className="rounded-lg bg-amber-600 px-3 py-1 text-xs font-medium text-white hover:bg-amber-700"
-                    >
-                      Guardar
-                    </button>
-                    <button
-                      onClick={() => setEditingFloat(false)}
-                      className="rounded-lg border border-amber-300 px-3 py-1 text-xs text-amber-700 hover:bg-amber-100"
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                ) : (
-                  <p className="mt-1 text-xl font-bold text-amber-800">
-                    {formatMoney(cutoff.cashFloat)}
-                  </p>
-                )}
+                <p className="mt-1 text-xl font-bold text-amber-800">
+                  {formatMoney(cutoff.cashFloat)}
+                </p>
               </div>
-              {!editingFloat && !closedCutoff && (
-                <button
-                  onClick={() => {
-                    setFloatInput(String(cutoff.cashFloat))
-                    setEditingFloat(true)
-                  }}
+              {!closedCutoff && (
+                <Link
+                  to="/admin/fondo"
                   className="rounded-lg border border-amber-300 bg-white px-3 py-1 text-xs font-medium text-amber-700 hover:bg-amber-100 print:hidden"
                 >
-                  Editar
-                </button>
+                  Cambiar en Administración
+                </Link>
               )}
             </div>
             <p className="mt-2 text-xs text-amber-700">
               Efectivo que se queda en caja para el día siguiente (no es parte de las ventas). Se
-              mantiene igual cada día hasta que lo cambies, y al cerrar el corte queda fijo.
+              mantiene igual cada día hasta que lo cambien en Administración, y al cerrar el corte
+              queda fijo.
             </p>
           </div>
 
