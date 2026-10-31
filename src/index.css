@@ -46,7 +46,7 @@ input[type='number']::-webkit-inner-spin-button {
 }
 
 /* Papel térmico de 58 mm: la hoja mide 58 mm de ancho y el largo se adapta al contenido.
-   El ticket usa 48 mm (área imprimible típica de estas impresoras, 384 puntos). */
+   El ticket usa 40 mm centrados y se adapta al ancho real de la página. */
 @page ticket {
   size: 58mm auto;
   margin: 0;
@@ -55,7 +55,7 @@ input[type='number']::-webkit-inner-spin-button {
 @media print {
   html:has(body.printing-ticket),
   body.printing-ticket {
-    width: 58mm;
+    width: 100%;
     height: auto;
     margin: 0;
     background: #fff;
@@ -68,7 +68,7 @@ input[type='number']::-webkit-inner-spin-button {
   body.printing-ticket #ticket-print-root {
     display: block;
     page: ticket;
-    width: 58mm;
+    width: 100%;
     padding: 2mm 0;
     overflow: visible;
   }

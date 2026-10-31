@@ -37,7 +37,7 @@ accesorios. Funciona en el navegador y guarda todos los datos localmente
 - **Imprimir** usa el diálogo de impresión del sistema: funciona con impresoras normales
   y con impresoras térmicas de 58 mm (en PC con su controlador, en Android con la
   app de impresión de la impresora o un servicio como RawBT). El ticket sale a 58 mm de
-  ancho (48 mm útiles) y el largo se adapta al contenido.
+  ancho (40 mm útiles) y el largo se adapta al contenido.
 - **WhatsApp** abre el chat con el ticket ya escrito. Si escribes el número del cliente a
   10 dígitos, se abre su chat directamente (se agrega el +52); si lo dejas vacío, eliges
   el contacto en WhatsApp.
