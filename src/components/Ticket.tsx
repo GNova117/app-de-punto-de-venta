@@ -15,29 +15,30 @@ function Row({
   indent?: boolean
 }) {
   return (
-    <div className={`flex justify-between gap-2 ${strong ? 'text-[15px] font-bold' : ''}`}>
-      <span className={indent ? 'pl-3' : ''}>{label}</span>
+    <div className={`flex justify-between gap-1 ${strong ? 'text-[13px] font-bold' : ''}`}>
+      <span className={`min-w-0 break-words ${indent ? 'pl-2' : ''}`}>{label}</span>
       <span className="shrink-0">{value}</span>
     </div>
   )
 }
 
-const Divider = () => <div className="my-2 border-t border-dashed border-black" />
+const Divider = () => <div className="my-1.5 border-t border-dashed border-black" />
 
-// Ancho máximo de 72 mm (área imprimible de papel de 80 mm); en papel de 58 mm se ajusta solo.
+// Diseñado para impresora térmica de 58 mm: 48 mm de ancho útil (área imprimible típica).
 export default function Ticket({ sale }: { sale: Sale }) {
   const change = saleChange(sale)
 
   return (
-    <div className="mx-auto w-full max-w-[72mm] bg-white p-3 text-[12px] leading-snug text-black tabular-nums">
-      <img src={logo} alt="Glam Carpe" className="mx-auto mb-1 w-32" />
-      <p className="text-center text-[10px] tracking-wide uppercase">Más que productos, tu estilo.</p>
+    <div className="mx-auto w-[48mm] max-w-full bg-white text-[11px] leading-snug text-black tabular-nums">
+      <img src={logo} alt="Glam Carpe" className="mx-auto mb-1 w-24" />
+      <p className="text-center text-[9px] tracking-wide uppercase">Más que productos, tu estilo.</p>
       <Divider />
-      <Row label={`Venta #${sale.id}`} value={formatDateTime(sale.date)} />
+      <p className="font-bold">Venta #{sale.id}</p>
+      <p>{formatDateTime(sale.date)}</p>
       <Divider />
       {sale.items.map((item) => (
         <div key={item.productId} className="mb-1">
-          <p>
+          <p className="break-words">
             {item.quantity} × {item.name}
           </p>
           <Row
@@ -75,7 +76,7 @@ export default function Ticket({ sale }: { sale: Sale }) {
         <p className="mb-2 border border-black p-1 text-center font-bold">
           VENTA CANCELADA
           <br />
-          <span className="text-[10px] font-normal">{formatDateTime(sale.cancelledAt)}</span>
+          <span className="text-[9px] font-normal">{formatDateTime(sale.cancelledAt)}</span>
         </p>
       )}
       <p className="text-center">¡Gracias por tu compra!</p>
